@@ -1,0 +1,127 @@
+<Window x:Class="AIBridge.Dialogs.SqlProfileEditorDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Tx="http://unclassified.software/source/txtranslation"
+        Title="{Tx:T 'SQL Profiles Editor'}" Height="460" Width="714"
+        Background="#1E1E2E" WindowStartupLocation="CenterOwner"
+        Foreground="White">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Panel: Profile List -->
+        <Border Grid.Column="0" BorderBrush="#333333" BorderThickness="0,0,1,0" Margin="0,0,10,0" Padding="0,0,10,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Tx:T Profiles}" FontSize="16" FontWeight="Bold" Foreground="#4A90E2" Margin="0,0,0,10"/>
+
+                <ListBox x:Name="ProfilesListBox" Grid.Row="1" Background="Transparent" Foreground="White" BorderThickness="0"
+                         SelectionChanged="ProfilesListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" Padding="5"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <Button Content="{Tx:T '➕ New'}" Click="NewProfile_Click" Background="#27AE60" Foreground="White" BorderThickness="0" Padding="10,5" Margin="0,0,5,0" Cursor="Hand"/>
+                    <Button Content="{Tx:T '🗑 Delete'}" Click="DeleteProfile_Click" Background="#E74C3C" Foreground="White" BorderThickness="0" Padding="10,5" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Right Panel: Editor -->
+        <Grid Grid.Column="1" x:Name="EditorPanel" IsEnabled="False">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="{Tx:T 'Profile Details'}" FontSize="16" FontWeight="Bold" Foreground="#4A90E2" Margin="0,0,0,15"/>
+
+            <!-- Name -->
+            <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                <TextBlock Text="{Tx:T 'Profile Name (without .sqlprofile)'}" Foreground="#A0A0A0" Margin="0,0,0,5"/>
+                <TextBox x:Name="NameTextBox" Background="#2D2D4E" Foreground="White" BorderThickness="0" Padding="5"/>
+            </StackPanel>
+
+            <!-- Provider -->
+            <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                <TextBlock Text="{Tx:T Provider}" Foreground="#A0A0A0" Margin="0,0,0,5"/>
+                <ComboBox x:Name="ProviderComboBox" Background="White" Foreground="Black" BorderThickness="0" Padding="5"
+                          SelectionChanged="ProviderComboBox_SelectionChanged">
+                    <ComboBox.Resources>
+                        <!-- Sovrascrive il brush di sistema che causa testo bianco su bianco nell'item selezionato -->
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="White"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="Black"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#BBDEFB"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
+                    </ComboBox.Resources>
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="ComboBoxItem">
+                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Background" Value="White"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsHighlighted" Value="True">
+                                    <Setter Property="Background" Value="#BBDEFB"/>
+                                    <Setter Property="Foreground" Value="Black"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#90CAF9"/>
+                                    <Setter Property="Foreground" Value="Black"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                    <ComboBoxItem x:Name="ProviderPlaceholderItem" Content="{Tx:T '&lt;Choose database type&gt;'}" Foreground="#888888" IsEnabled="False"/>
+                    <ComboBoxItem Content="sqlserver"/>
+                    <ComboBoxItem Content="mysql"/>
+                    <ComboBoxItem Content="postgresql"/>
+                    <ComboBoxItem Content="sqlite"/>
+                    <ComboBoxItem Content="excel"/>
+                    <ComboBoxItem Content="oledb"/>
+                    <ComboBoxItem Content="odbc"/>
+                    <ComboBoxItem Content="db2"/>
+                    <ComboBoxItem Content="oracle"/>
+                </ComboBox>
+            </StackPanel>
+
+            <!-- Connection String -->
+            <StackPanel Grid.Row="3" Margin="0,0,0,10">
+                <TextBlock Text="{Tx:T 'Connection String (or File Path for Excel/SQLite)'}" Foreground="#A0A0A0" Margin="0,0,0,5"/>
+                <TextBox x:Name="ConnectionStringTextBox" Background="#2D2D4E" Foreground="White" BorderThickness="0" Padding="5" TextWrapping="Wrap" AcceptsReturn="True" Height="60"/>
+            </StackPanel>
+
+            <!-- Schema File -->
+            <StackPanel Grid.Row="4" Margin="0,0,0,10">
+                <TextBlock Text="{Tx:T 'Schema File (Optional, e.g. schema.sql)'}" Foreground="#A0A0A0" Margin="0,0,0,5"/>
+                <TextBox x:Name="SchemaFileTextBox" Background="#2D2D4E" Foreground="White" BorderThickness="0" Padding="5"/>
+            </StackPanel>
+
+            <!-- Skill File -->
+            <StackPanel Grid.Row="5" Margin="0,0,0,10">
+                <TextBlock Text="{Tx:T 'Skill File (Optional, e.g. skill.md)'}" Foreground="#A0A0A0" Margin="0,0,0,5"/>
+                <TextBox x:Name="SkillFileTextBox" Background="#2D2D4E" Foreground="White" BorderThickness="0" Padding="5"/>
+            </StackPanel>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                <Button Content="{Tx:T Cancel}" Click="Cancel_Click" Background="#555555" Foreground="White" BorderThickness="0" Padding="15,7" Margin="0,0,10,0" Cursor="Hand"/>
+                <Button Content="{Tx:T 'Save Profile'}" Click="Save_Click" Background="#4A90E2" Foreground="White" BorderThickness="0" Padding="15,7" Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

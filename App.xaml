@@ -1,0 +1,164 @@
+<Application x:Class="AIBridge.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:AIBridge"
+             xmlns:converters="clr-namespace:AIBridge.Converters"
+             Startup="Application_Startup">
+    <Application.Resources>
+        <converters:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
+
+        <!-- ══════════════════════════════════════════════════
+             MODERN THIN SCROLLBAR — Google-style, 6px
+             Quasi invisibile a riposo, visibile su hover/drag
+        ══════════════════════════════════════════════════ -->
+
+        <!-- Thumb verticale -->
+        <Style x:Key="ScrollBarThumbVertical" TargetType="Thumb">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="ThumbBorder"
+                                Background="#55FFFFFF"
+                                CornerRadius="3"
+                                Margin="1,2"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ThumbBorder" Property="Background" Value="#99FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="ThumbBorder" Property="Background" Value="#CCB0B0FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Thumb orizzontale -->
+        <Style x:Key="ScrollBarThumbHorizontal" TargetType="Thumb">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="ThumbBorder"
+                                Background="#55FFFFFF"
+                                CornerRadius="3"
+                                Margin="2,1"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ThumbBorder" Property="Background" Value="#99FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="ThumbBorder" Property="Background" Value="#CCB0B0FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ScrollBar globale (sovrascrive il default WPF per tutta l'app) -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+
+                <!-- ── VERTICALE ── -->
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Width" Value="6"/>
+                    <Setter Property="MinWidth" Value="6"/>
+                    <Setter Property="Margin" Value="4,2,4,2"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Grid x:Name="GridRoot" Width="6">
+                                    <!-- Track di sfondo: quasi trasparente -->
+                                    <Border x:Name="TrackBg"
+                                            Background="#18FFFFFF"
+                                            CornerRadius="3"
+                                            Opacity="0"/>
+                                    <Track x:Name="PART_Track"
+                                           IsDirectionReversed="True"
+                                           Focusable="False">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.LineUpCommand"
+                                                          Opacity="0" IsTabStop="False"
+                                                          Focusable="False"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.LineDownCommand"
+                                                          Opacity="0" IsTabStop="False"
+                                                          Focusable="False"/>
+                                        </Track.IncreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb Style="{StaticResource ScrollBarThumbVertical}"/>
+                                        </Track.Thumb>
+                                    </Track>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <!-- Al hover sul contenitore scrollabile, mostra il track -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="TrackBg" Property="Opacity" Value="1"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+
+                <!-- ── ORIZZONTALE ── -->
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height" Value="6"/>
+                    <Setter Property="MinHeight" Value="6"/>
+                    <Setter Property="Margin" Value="2,4,2,4"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Grid x:Name="GridRoot" Height="6">
+                                    <Border x:Name="TrackBg"
+                                            Background="White"
+                                            CornerRadius="3"
+                                            Opacity="0"/>
+                                    <Track x:Name="PART_Track"
+                                           IsDirectionReversed="False"
+                                           Focusable="False">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.LineLeftCommand"
+                                                          Opacity="0" IsTabStop="False"
+                                                          Focusable="False"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.LineRightCommand"
+                                                          Opacity="0" IsTabStop="False"
+                                                          Focusable="False"/>
+                                        </Track.IncreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb Style="{StaticResource ScrollBarThumbHorizontal}"/>
+                                        </Track.Thumb>
+                                    </Track>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="TrackBg" Property="Opacity" Value="1"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+
+            </Style.Triggers>
+        </Style>
+
+        <!-- ScrollViewer: padding minimo per non rubare spazio al contenuto -->
+        <Style TargetType="ScrollViewer">
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+    </Application.Resources>
+</Application>

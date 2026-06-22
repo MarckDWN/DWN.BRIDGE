@@ -1,0 +1,135 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>aibridge.ico</ApplicationIcon>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <GenerateTargetPlatformAttribute>false</GenerateTargetPlatformAttribute>
+    <PlaywrightPlatform>win</PlaywrightPlatform>
+    <AssemblyName>DWN.Bridge</AssemblyName>
+    <!-- Rimuove i percorsi locali assoluti della tua macchina (es. C:\Users\orlan\...) dai file .pdb e .dll compilati -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="localization\languages.txd" />
+    <None Remove="aibridge.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="aibridge.ico" />
+    <Resource Include="Resources\splash_logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="localization\languages.txd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Copia i prompt/skills in locale per il debug, ma ESCLUDILI dalla pubblicazione (ClickOnce) -->
+  <ItemGroup Condition="'$(DeployOnBuild)' != 'true' And '$(PublishProtocol)' == ''">
+    <None Update="agent\skills\**\*.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup Condition="'$(DeployOnBuild)' == 'true' Or '$(PublishProtocol)' != ''">
+    <None Remove="agent\skills\**\*.md" />
+    <Content Remove="agent\skills\**\*.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="MdXaml" Version="1.27.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.60.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4022.49" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="MySql.Data" Version="9.7.0" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
+    <PackageReference Include="ReverseMarkdown" Version="5.3.0" />
+    <PackageReference Include="System.Data.Odbc" Version="10.0.9" />
+    <PackageReference Include="System.Data.OleDb" Version="10.0.9" />
+    <PackageReference Include="System.Management" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Unclassified.TxLib">
+      <HintPath>libs\Unclassified.TxLib.dll</HintPath>
+    </Reference>
+    <ProjectReference Include="AIBridge.Shared\AIBridge.Shared.csproj" />
+  </ItemGroup>
+
+
+  <!-- Riferimenti per forzare la compilazione delle estensioni Open Source -->
+  <ItemGroup>
+    <ProjectReference Include="AIBridge.ToolCore\AIBridge.ToolCore.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <SetTargetFramework>TargetFramework=net10.0</SetTargetFramework>
+    </ProjectReference>
+  </ItemGroup>
+
+  <!-- Copiale nella cartella extensions (SOLO IN DEBUG LOCALE) -->
+  <Target Name="CopyExtensionLocalDebug" AfterTargets="Build" Condition="'$(DeployOnBuild)' != 'true' And '$(PublishProtocol)' == ''">
+    <ItemGroup>
+      <CoreExtensionFiles Include="$(MSBuildThisFileDirectory)AIBridge.ToolCore\bin\$(Configuration)\net10.0\AIBridge.ToolCore.dll" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutDir)extensions" Condition="!Exists('$(OutDir)extensions')" />
+    <Copy SourceFiles="@(CoreExtensionFiles)" DestinationFolder="$(OutDir)extensions" />
+  </Target>
+
+  <!-- Copia i binari delle estensioni proprietarie pre-compilate forniti nel repo -->
+  <ItemGroup>
+    <None Update="extensions\*.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- Assicura che le DLL finiscano nel pacchetto CLICKONCE senza usare target custom che mandano in crash WebTools -->
+  <ItemGroup Condition="'$(DeployOnBuild)' == 'true' Or '$(PublishProtocol)' != ''">
+    <Content Include="$(MSBuildThisFileDirectory)AIBridge.ToolCore\bin\$(Configuration)\net10.0\AIBridge.ToolCore.dll" Link="extensions\AIBridge.ToolCore.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="temp\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="TestJson.cs" />
+    <Compile Remove="TestJsonApp\Program.cs" />
+  </ItemGroup>
+
+  <!-- Escludi i sottoprogetti della solution dal glob implicito del SDK -->
+  <ItemGroup>
+    <Compile Remove="AIBridge.Shared\**" />
+    <Compile Remove="AIBridge.Server\**" />
+    <Compile Remove="AIBridge.Core\**" />
+    <Compile Remove="AIBridge.LocalPersistence\**" />
+    <Compile Remove="AIBridge.ToolCore\**" />
+    <EmbeddedResource Remove="AIBridge.Shared\**" />
+    <EmbeddedResource Remove="AIBridge.Server\**" />
+    <EmbeddedResource Remove="AIBridge.Core\**" />
+    <EmbeddedResource Remove="AIBridge.LocalPersistence\**" />
+    <EmbeddedResource Remove="AIBridge.ToolCore\**" />
+    <None Remove="AIBridge.Shared\**" />
+    <None Remove="AIBridge.Server\**" />
+    <None Remove="AIBridge.Core\**" />
+    <None Remove="AIBridge.LocalPersistence\**" />
+    <None Remove="AIBridge.ToolCore\**" />
+  </ItemGroup>
+
+</Project>

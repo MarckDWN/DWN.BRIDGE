@@ -1,0 +1,67 @@
+<Window x:Class="AIBridge.Dialogs.CommunityAgentsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Tx="http://unclassified.software/source/txtranslation"
+        Title="{Tx:T My Custom Agents}" MinHeight="400" Width="550"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E2E"
+        Foreground="White"
+        FontFamily="Segoe UI">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="{Tx:T Manage your local agents and submit them to the global AIBridge community!}"
+                   Foreground="#A0A0C0" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+        <TextBlock Grid.Row="1" Text="{Tx:T Select agents to submit for approval:}"
+                   Foreground="White" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+
+        <!-- Agent List -->
+        <ListBox Grid.Row="2" x:Name="AgentsListBox" Background="#2D2D4E" Foreground="White" BorderBrush="#7B68EE" BorderThickness="1" 
+                 MinHeight="150" MaxHeight="300" ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="4">
+                        <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding Icon}" Margin="0,0,8,0" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text=" (" Foreground="#A0A0C0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Status}" Foreground="#4A90E2" VerticalAlignment="Center"/>
+                        <TextBlock Text=")" Foreground="#A0A0C0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Buttons -->
+        <Grid Grid.Row="3" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Button x:Name="OpenFolderButton" Content="{Tx:T 📁 Open Local Folder}" Grid.Row="0" Grid.Column="0"
+                    Height="35" Margin="0,0,8,8" Background="#3D3D5E" Foreground="White" BorderThickness="0" Click="OpenFolderButton_Click"/>
+            
+            <Button x:Name="SubmitButton" Content="{Tx:T 🚀 Submit to Community}" Grid.Row="0" Grid.Column="1"
+                    Height="35" Margin="8,0,0,8" Background="#7B68EE" Foreground="White" BorderThickness="0" Click="SubmitButton_Click" FontWeight="Bold"/>
+
+            <Button x:Name="GitHubButton" Content="{Tx:T 💻 Open GitHub Repo}" Grid.Row="1" Grid.Column="0"
+                    Height="35" Margin="0,8,8,0" Background="#333333" Foreground="White" BorderThickness="0" Click="GitHubButton_Click"/>
+            
+            <Button x:Name="DiscordButton" Content="{Tx:T 💬 Join Discord}" Grid.Row="1" Grid.Column="1"
+                    Height="35" Margin="8,8,0,0" Background="#5865F2" Foreground="White" BorderThickness="0" Click="DiscordButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>

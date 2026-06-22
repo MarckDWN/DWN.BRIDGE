@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TxTranslation dictionary file. Use TxEditor to edit this file. http://unclassified.software/txtranslation -->
+<translation xml:space="preserve">
+    <culture name="it-IT">
+
+        <!-- === App / Status Messages === -->
+        <text key="Ready. Click 'Start Browser' to begin.">Pronto. Clicca 'Avvia Browser' per iniziare.</text>
+        <text key="Starting Playwright...">Avvio di Playwright in corso...</text>
+        <text key="Browser already active. Bringing to front...">Browser già attivo. Riporto in primo piano...</text>
+        <text key="Browser in front.">Browser in primo piano.</text>
+        <text key="Browser started. Log in if needed.">Browser avviato. Fai il login se necessario.</text>
+        <text key="Generating (ChatBot)...">Generazione in corso (ChatBot)...</text>
+        <text key="Running tool ({0}/{1})...">Esecuzione strumento ({0}/{1})...</text>
+        <text key="Error: no response or timeout.">Errore: nessuna risposta estratta o timeout.</text>
+        <text key="Response completed.">Risposta completata.</text>
+        <text key="Starting new chat...">Avvio nuova chat...</text>
+        <text key="Starting browser...">Avvio browser in corso...</text>
+        <text key="Downloading browser engine (first run only)...">Installazione motore browser in background (solo al primo avvio)...</text>
+        <text key="New chat ready.">Nuova chat pronta.</text>
+        <text key="New chat error: {0}">Errore nuova chat: {0}</text>
+        <text key="Loading chat: {0}...">Caricamento chat: {0}...</text>
+        <text key="Starting browser...">Avvio del browser in corso...</text>
+        <text key="Chat '{0}' loaded.">Chat '{0}' caricata.</text>
+        <text key="Chat loading error: {0}">Errore caricamento chat: {0}</text>
+        <text key="Synchronizing chat name...">Sincronizzazione nome chat in corso...</text>
+        <text key="Name sync failed: chat not found in ChatBot sidebar.">Sincronizzazione nome non riuscita: chat non trovata nella sidebar del ChatBot.</text>
+        <text key="Name updated: &quot;{0}&quot;">Nome aggiornato: "{0}"</text>
+        <text key="Name sync failed: {0}">Sincronizzazione nome non riuscita: {0}</text>
+        <text key="{0} files attached.">{{0}} file allegati.</text>
+        <text key="Ready.">Pronto.</text>
+        <text key="Message copied to clipboard.">Messaggio copiato negli appunti.</text>
+        <text key="Table copied to clipboard!">Tabella copiata negli appunti!</text>
+        <text key="Data (TSV) copied for Excel!">Dati (TSV) copiati per Excel!</text>
+        <text key="Query executed successfully.">Query eseguita con successo.</text>
+        <text key="SQL Error. Auto-fix attempt ({0}/2)...">Errore SQL. Tentativo di auto-correzione ({0}/2)...</text>
+        <text key="SQL Error. Auto-fix failed after 2 attempts.">Errore SQL. Correzione automatica fallita dopo 2 tentativi.</text>
+        <text key="Generating code (Agent Coder)...">Generazione codice in corso (Agent Coder)...</text>
+        <text key="File generation completed successfully.">Generazione file completata con successo.</text>
+        <text key="Agent task error.">Errore Task Agente.</text>
+        <text key="Sync completed.">Sincronizzazione completata.</text>
+        <text key="Synchronizing file with ChatBot...">Sincronizzazione file con ChatBot in corso...</text>
+        <text key="DB connection test in progress...">Test connessione DB in corso...</text>
+        <text key="DB test completed successfully.">Test DB completato con successo.</text>
+        <text key="DB test error.">Errore Test DB.</text>
+        <text key="Structured data request to ChatBot...">Richiesta Dati Strutturati al ChatBot...</text>
+        <text key="JSON extraction completed.">Estrazione JSON completata.</text>
+        <text key="JSON extraction error.">Errore Estrazione JSON.</text>
+        <text key="In progress...">In esecuzione...</text>
+
+        <!-- === Chat message Senders === -->
+        <text key="User">Utente</text>
+        <text key="System">Sistema</text>
+        <text key="System I/O">Sistema I/O</text>
+        <text key="System DB Test">Sistema Test DB</text>
+        <text key="Watcher">Watcher</text>
+        <text key="Developer Agent">Agente Sviluppatore</text>
+        <text key="SQL Agent">Agente SQL</text>
+        <text key="Query Result (Local DB)">Risultato Query (Local DB)</text>
+        <text key="Query Error (Local DB)">Errore Query (Local DB)</text>
+
+        <!-- === Chat message content === -->
+        <text key="[Initial Prompt Sent]: Developer Agent configured">[Prompt Iniziale Inviato]: Agente Sviluppatore configurato</text>
+        <text key="[Initial Prompt Sent]: JSON Agent configured">[Prompt Iniziale Inviato]: Agente Json configurato</text>
+        <text key="[Initial Prompt Sent]: SQL Agent configured with current schema">[Prompt Iniziale Inviato]: Agente SQL configurato con lo schema corrente</text>
+        <text key="[Tool running ⚙️...]">[Esecuzione Strumento in corso ⚙️...]</text>
+        <text key="Written">Scritto</text>
+        <text key="MARKDOWN PARSING ERROR!">ERRORE DI PARSING MARKDOWN!</text>
+        <text key="FILE WRITE ERROR">ERRORE DI SCRITTURA FILE</text>
+        <text key="Execution completed ({0} rows extracted).">Esecuzione completata ({0} righe estratte).</text>
+        <text key="Cannot execute query:\n{0}\n\nQuery attempted:\n{1}">Impossibile eseguire la query:\n{0}\n\nQuery tentata:\n{1}</text>
+        <text key="Change detected in {0}. Starting sync...">Modifica rilevata in {0}. Avvio Sync...</text>
+        <text key="Watcher started on folder: {0}\nCreate or modify a file there to test automation!">Watcher avviato sulla cartella: {0}\nCrea o modifica un file lì dentro per testare l'automazione!</text>
+        <text key="CONNECTION SUCCESSFUL!\n\nString: {0}\n\nExtracted Schema:\n{1}...\n\n(Schema truncated for brevity)">CONNESSIONE RIUSCITA!\n\nStringa: {0}\n\nSchema Estratto:\n{1}...\n\n(Schema troncato per brevità)</text>
+        <text key="CONNECTION ERROR:\n{0}\n\nIf you don't have SQLEXPRESS installed locally, open MainViewModel.cs and change 'testConnectionString' with your real DB credentials.">ERRORE DI CONNESSIONE:\n{0}\n\nSe non hai SQLEXPRESS installato in locale, apri MainViewModel.cs e modifica 'testConnectionString' con le tue credenziali DB reali.</text>
+        <text key="Structured Extraction (JSON) -> Mario Rossi">Estrazione Strutturata (JSON) -> Mario Rossi</text>
+        <text key="Data deserialized correctly in C#!\nObject -> Name: {0}, Job: {1}, Age: {2}">Dati deserializzati correttamente in C#!\nOggetto -> Nome: {0}, Lavoro: {1}, Età: {2}</text>
+        <text key="Parse Error: Cannot deserialize JSON.\nDetail: {0}\nRaw data: {1}">Errore Parsing: Impossibile deserializzare il JSON.\nDettaglio: {0}\nDati Raw: {1}</text>
+        <text key="Sent Developer Task:\n{0}">Inviato Task Sviluppatore:\n{0}</text>
+        <text key="OPERATION COMPLETED!\nCreated/Overwritten: {0}\nReal location: {1}\nCharacters: {2}">OPERAZIONE COMPLETATA!\nCreato/Sovrascritto: {0}\nPosizione reale: {1}\nCaratteri: {2}</text>
+        <text key="I/O error during save or parsing: {0}">Errore di I/O nel salvataggio o nel parsing: {0}</text>
+        <text key="Error during restore: {0}">Errore durante il ripristino: {0}</text>
+
+        <!-- === Agent profiles === -->
+        <text key="Default Chatbot">Default Chatbot</text>
+        <text key="Free conversation">Conversazione libera</text>
+        <text key="Data Analyst (JSON)">Analista Dati (JSON)</text>
+        <text key="Extracts data in JSON format">Estrae dati in formato JSON</text>
+        <text key="C# Developer">Sviluppatore C#</text>
+        <text key="Writes source files in workspace">Scrive file sorgente nel workspace</text>
+        <text key="SQL Data Analyst">Analista Dati SQL</text>
+        <text key="Creates and executes SQL queries on local DB">Crea ed esegue query SQL sul DB locale</text>
+
+        <!-- === Session descriptions === -->
+        <text key="New Chat · {0}">Nuova Chat · {0}</text>
+
+        <!-- === MainWindow.xaml.cs === -->
+        <text key="{0} files attached via drag &amp; drop.">{{0}} file allegati tramite trascinamento.</text>
+
+        <!-- === Dialogs === -->
+        <text key="Select workspace folder">Seleziona la cartella del Workspace</text>
+
+        <text key="Expand 🔽">Espandi 🔽</text>
+        <text key="Collapse 🔼">Comprimi 🔼</text>
+        <text key="📋 Copy">📋 Copia</text>
+        <text key="Open File in VS/Editor">Apri File in VS/Editor</text>
+        <text key="Reject Change">Rifiuta Modifica</text>
+        <text key="Restore Change">Ripristina Modifica</text>
+        <text key="📋 Copy Text">📋 Copia Testo</text>
+        <text key="📊 Copy for Excel">📊 Copia per Excel</text>
+        <text key="Copy entire message">Copia intero messaggio</text>
+        <text key="Copy selected text">Copia testo selezionato</text>
+        <text key="▶ Details">▶ Dettagli</text>
+        <text key="▼ Hide">▼ Nascondi</text>
+        <text key=" — Tool Executed"> — Tool Eseguito</text>
+        <text key="Selected DB Profile:">Profilo DB Selezionato:</text>
+        <text key="Choose...">Scegli...</text>
+        <text key="Test DB">Test DB</text>
+        <text key="Test local DB connection">Testa connessione al DB locale</text>
+        <text key="Open folder/file location">Apri posizione cartella/file</text>
+        <text key="Refresh directory">Aggiorna directory</text>
+        <text key="Remove attached file">Rimuovi file allegato</text>
+        <text key="Attach File">Allega File</text>
+        <text key="Send to ChatBot">Invia al ChatBot</text>
+        <text key="📋 Chat History">📋 Cronologia Chat</text>
+        <text key="✨ New Chat">✨ Nuova Chat</text>
+        <text key="📂 Open this chat">📂 Apri questa chat</text>
+        <text key="✏️ Rename chat">✏️ Rinomina chat</text>
+        <text key="🔄 Sync chat name">🔄 Sincronizza il nome della chat</text>
+        <text key="🗑️ Delete from history">🗑️ Elimina dalla cronologia</text>
+        <text key="Save current Agent and Workspace">Salva Agente e Workspace correnti</text>
+        <text key="Agent and Workspace saved for chat: {0}">Agente e Workspace salvati per la chat: {0}</text>
+        <text key="⚙ Start Browser">⚙ Avvia Browser</text>
+        <text key="📁 Dir Watcher">📁 Dir Watcher</text>
+        <!-- RenameChatDialog -->
+        <text key="Rename Chat">Rinomina Chat</text>
+        <text key="Enter the new chat name:">Inserisci il nuovo nome della chat:</text>
+        <text key="✔ Rename">✔ Rinomina</text>
+        <text key="Cancel">Annulla</text>
+        <!-- MainWindow.xaml.cs drag-drop -->
+        <text key="{0} files attached via drag &amp; drop.">{0} file allegati tramite trascinamento.</text>
+
+        <!-- === Main Window === -->
+        <text key="DWN.Bridge - Local AI Agent">DWN.Bridge - Agente AI Locale</text>
+        <text key="AI Agents">Agenti AI</text>
+        <text key="Workspace">Area di Lavoro</text>
+        <text key="OUTPUT">OUTPUT</text>
+        <!-- === Training Mode === -->
+        <text key="Training phase in progress, select one or more conversation sections">Fase di addestramento in corso, selezionare una o più sezioni della conversazione</text>
+        <text key="Correct or confirm the text before processing">Correggere o confermare il testo prima dell'elaborazione</text>
+        <text key="Verify the new rules to apply and confirm">Verificare le nuove regole da applicare e confermare</text>
+        <text key="Confirm Training Data">Conferma Dati di Addestramento</text>
+        <text key="✔ Generate Skill">✔ Genera Skill</text>
+        <text key="Skill Generation Result">Risultato Generazione Skill</text>
+        <text key="✔ Save Skill">✔ Salva Skill</text>
+        <text key="Discard">Scarta</text>
+        <text key="Extract rules and best practices from the following conversation.">Estrai regole e best practice dalla seguente conversazione.</text>
+        <text key="Output ONLY a valid Markdown snippet that can be directly appended to my Agent System Prompt.">Restituisci SOLO uno snippet Markdown valido da aggiungere al mio Agent System Prompt.</text>
+        <text key="Use lists, bold text, and clear bullet points.">Usa elenchi, grassetto e punti elenco chiari.</text>
+        <text key="No preamble, no conversational text, just the raw Markdown.">Nessun preambolo, nessun testo discorsivo, solo il Markdown puro.</text>
+        <text key="[CONVERSATION]">[CONVERSAZIONE]</text>
+        <text key="Training Mode: Select messages then click the training icon again to confirm.">Modalità Addestramento: Seleziona i messaggi poi clicca di nuovo l'icona per confermare.</text>
+        <text key="Generating skill rule in background...">Generazione regola skill in background...</text>
+        <text key="New Learned Rules">Nuove Regole Apprese</text>
+        <text key="Workspace skill updated successfully!">Skill del Workspace aggiornato con successo!</text>
+        <text key="No workspace is currently open. Cannot save skill.">Nessun workspace aperto. Impossibile salvare lo skill.</text>
+        <text key="Failed to save skill: {0}">Salvataggio skill fallito: {0}</text>
+        <text key="Error during skill extraction: {0}">Errore durante l'estrazione dello skill: {0}</text>
+        <text key="Start Training (Select messages)">Avvia Addestramento (Seleziona messaggi)</text>
+        <text key="Confirm Selection">Conferma Selezione</text>
+        
+        <!-- === SQL Profile Editor === -->
+        <text key="SQL Profiles Editor">Editor Profili SQL</text>
+        <text key="Profiles">Profili</text>
+        <text key="➕ New">➕ Nuovo</text>
+        <text key="🗑 Delete">🗑 Elimina</text>
+        <text key="Profile Details">Dettagli Profilo</text>
+        <text key="Profile Name (without .sqlprofile)">Nome Profilo (senza .sqlprofile)</text>
+        <text key="Provider">Provider</text>
+        <text key="Connection String (or File Path for Excel/SQLite)">Stringa di Connessione (o Percorso File per Excel/SQLite)</text>
+        <text key="Schema File (Optional, e.g. schema.sql)">File Schema (Opzionale, es. schema.sql)</text>
+        <text key="Skill File (Optional, e.g. skill.md)">File Skill (Opzionale, es. skill.md)</text>
+        <text key="Cancel">Annulla</text>
+        <text key="Save Profile">Salva Profilo</text>
+        <text key="Are you sure you want to delete the profile '{0}'?">Sei sicuro di voler eliminare il profilo '{0}'?</text>
+        <text key="Confirm deletion">Conferma eliminazione</text>
+        <text key="Error while deleting the file: {0}">Errore durante l'eliminazione del file: {0}</text>
+        <text key="The profile name cannot be empty.">Il nome del profilo non può essere vuoto.</text>
+        <text key="A profile with this name already exists.">Esiste già un profilo con questo nome.</text>
+        <text key="Unable to rename/delete the old file: {0}">Impossibile rinominare/eliminare il vecchio file: {0}</text>
+        <text key="Error during save: {0}">Errore durante il salvataggio: {0}</text>
+        <text key="Profile saved successfully!">Profilo salvato correttamente!</text>
+        <text key="&lt;Choose database type&gt;">&lt;Scegli il tipo di database&gt;</text>
+        <text key="Please select a database provider before saving.">Seleziona un tipo di database prima di salvare.</text>
+        <text key="Double-click to continue from a saved conversation">Doppio click per continuare da una conversazione salvata</text>
+        <text key="Please open a new session with the ChatBot (New chat) or choose one from the history.">Per favore apri una nuova sessione con il ChatBot (Nuova chat) o scegline una dallo storico.</text>
+        <text key="📁 Start Dir Watcher">📁 Avvia Dir Watcher</text>
+        <text key="🛑 Stop Dir Watcher">🛑 Ferma Dir Watcher</text>
+        <text key="Dir Watcher stopped.">Dir Watcher fermato.</text>
+
+        <!-- === Splash Screen === -->
+        <text key="Select Login Method">Seleziona Metodo di Accesso</text>
+        <text key="Login with last logged in user">Accedi con l'ultimo utente loggato</text>
+        <text key="Login with MagicLink (Email)">Accedi con MagicLink (Email)</text>
+        <text key="Login with GitHub">Accedi con GitHub</text>
+        <text key="Login as Guest">Accedi come Guest</text>
+        <text key="Unable to restore previous session. Please log in again.">Impossibile ripristinare la sessione precedente. Effettua un nuovo accesso.</text>
+        <text key="Server unavailable. Offline mode active.">Server non disponibile. Modalità offline attiva.</text>
+        <text key="Offline">Offline</text>
+        <text key="Error during login.">Errore durante il login.</text>
+        <text key="GitHub login not yet implemented in UI.">Accesso GitHub non ancora implementato nella UI.</text>
+        <text key="Work in progress">Lavori in corso</text>
+        <text key="Warning: by logging in as Guest your settings will not be saved to the cloud and your conversations will be lost when closing the application.">Attenzione: accedendo come Guest le tue impostazioni non verranno salvate sul cloud e le tue conversazioni andranno perse alla chiusura dell'applicazione.</text>
+        <text key="Do you want to proceed as Guest?">Vuoi procedere come Guest?</text>
+        <text key="Error during skill extraction: {0}">Errore durante l'estrazione della skill: {0}</text>
+        <text key="No workspace is currently open. Cannot save skill.">Nessun workspace attualmente aperto. Impossibile salvare la skill.</text>
+        <text key="Failed to save skill: {0}">Impossibile salvare la skill: {0}</text>
+        <text key="Error initializing WebView2: {0}">Errore durante l'inizializzazione di WebView2: {0}</text>
+        <text key="About DWN.Bridge">Informazioni su DWN.Bridge</text>
+        <text key="Guest Access">Accesso Guest</text>
+        <text key="Error">Errore</text>
+
+        <!-- === MagicLink Screen === -->
+        <text key="Login with Magic Link">Login con Magic Link</text>
+        <text key="Enter your Email to receive the Magic Link:">Inserisci la tua Email per ricevere il Magic Link:</text>
+        <text key="Check your email! Click the received link to complete login. Waiting for verification...">Controlla la tua email! Clicca sul link ricevuto per completare il login. In attesa di verifica...</text>
+        <text key="Send Link">Invia Link</text>
+        <text key="Please enter a valid email address.">Inserisci un indirizzo email valido.</text>
+        <text key="Error sending Magic Link.">Errore durante l'invio del Magic Link.</text>
+        <text key="The Magic Link has expired. Please try again.">Il Magic Link è scaduto. Riprova.</text>
+
+        <!-- === Main Window C# Strings === -->
+        <text key="You are already logged in. Do you want to log out and return to Guest mode?">Sei già loggato. Vuoi effettuare il logout e tornare in modalità Guest?</text>
+        <text key="Logout">Logout</text>
+        <text key="Logout successful. You are back in Guest mode.">Logout effettuato. Sei tornato in modalità Guest.</text>
+        <text key="Login via Email and Account Linking successfully completed!">Login via Email ed Account Linking effettuati con successo!</text>
+        <text key="Success">Successo</text>
+        <text key="Account Linking failed on server.">Account Linking fallito lato server.</text>
+        <text key="You are already logged in via OAuth. Do you want to log out and return to Guest mode?">Sei già loggato via OAuth. Vuoi effettuare il logout e tornare in modalità Guest?</text>
+        <text key="Error connecting to server for login.">Errore di connessione al server per il login.</text>
+        <text key="Security Error: CSRF State mismatch.">Security Error: CSRF State mismatch.</text>
+        <text key="OAuth Login and Account Linking successfully completed!">Login OAuth ed Account Linking effettuati con successo!</text>
+        <text key="OAuth login completed and history synchronized.">Login OAuth completato e history sincronizzata.</text>
+        <text key="Login successful but Account Linking failed.">Login riuscito ma Account Linking fallito.</text>
+        <text key="Warning">Attenzione</text>
+        <text key="Error exchanging OAuth token with the server:\n{0}">Errore durante lo scambio del token OAuth con il server:\n{0}</text>
+
+        <!-- === OAuth Login Dialog === -->
+        <text key="Login with Provider">Login OAuth</text>
+        <text key="🔒 Connect OAuth Account">🔒 Connetti Account OAuth</text>
+        <text key="Loading...">Caricamento in corso...</text>
+        <text key="Error initializing WebView2: {0}">Errore inizializzazione WebView2: {0}</text>
+    </culture>
+</translation>

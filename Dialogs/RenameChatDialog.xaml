@@ -1,0 +1,67 @@
+<Window x:Class="AIBridge.Dialogs.RenameChatDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Tx="http://unclassified.software/source/txtranslation"
+        Title="{Tx:T Rename Chat}" MinHeight="160" Width="440"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#1E1E2E"
+        Foreground="White"
+        FontFamily="Segoe UI">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="14"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="{Tx:T Enter the new chat name:}"
+                   Foreground="#A0A0C0" FontSize="12"/>
+
+        <TextBox Grid.Row="2" x:Name="NameTextBox"
+                 Background="#2D2D4E" Foreground="White"
+                 BorderBrush="#7B68EE" BorderThickness="1"
+                 Padding="6,4" FontSize="13" CaretBrush="White"
+                 SelectionBrush="#4A90E2"/>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="OkButton" Content="{Tx:T ✔ Rename}"
+                    Width="100" Height="28" Margin="0,0,8,0"
+                    Background="#4A90E2" Foreground="White" BorderThickness="0"
+                    Click="OkButton_Click" IsDefault="True">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="6,3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#5BA3F5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button x:Name="CancelButton" Content="{Tx:T Cancel}"
+                    Width="80" Height="28"
+                    Background="#3D3D5E" Foreground="#A0A0C0" BorderThickness="0"
+                    Click="CancelButton_Click" IsCancel="True">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="6,3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#4D4D6E"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

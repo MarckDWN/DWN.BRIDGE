@@ -1,0 +1,150 @@
+<Window x:Class="AIBridge.Dialogs.SplashScreenDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:tx="clr-namespace:Unclassified.TxLib;assembly=Unclassified.TxLib"
+        Title="DWN.Bridge - Splash" Height="576" Width="419"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False">
+    <Border Background="#1E1E2E" CornerRadius="10" BorderBrush="#4A90E2" BorderThickness="2" Padding="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+
+            </Grid.RowDefinitions>
+
+
+
+            <!-- Header section containing Language and Close button -->
+            <Grid Grid.Row="0" Margin="0,-10,-10,0">
+                <!-- Language selector: top left -->
+                <ComboBox x:Name="LanguageComboBox" HorizontalAlignment="Left" VerticalAlignment="Top"
+                          Width="100" Height="24"
+                          SelectionChanged="LanguageComboBox_SelectionChanged"
+                          DisplayMemberPath="Display" SelectedValuePath="Code"
+                          Background="#2A2A3E" Foreground="Black" BorderBrush="#4A90E2"
+                          FontSize="11" Margin="10,10,0,0"/>
+
+                <!-- Close button: top right -->
+                <Button Content="✕" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Width="30" Height="30" Background="Transparent" Foreground="#A0A0A0"
+                        BorderThickness="0" FontSize="16" FontWeight="Bold" Cursor="Hand"
+                        Click="CloseButton_Click"/>
+            </Grid>
+
+            <!-- Logo -->
+            <Image Grid.Row="0" Source="pack://application:,,,/Resources/splash_logo.png"
+                   Width="150" Height="150" Margin="0,3,0,81" Stretch="Uniform" HorizontalAlignment="Center"/>
+
+            <!-- App Name -->
+            <TextBlock Text="DWN.Bridge"
+                       FontFamily="Arial" FontWeight="Bold" FontSize="36"
+                       Foreground="White" HorizontalAlignment="Center" Margin="0,168,0,25"/>
+
+            <!-- Credits -->
+            <TextBlock Text="Built by MarckDWN - A.D. MMXXVI" 
+                       FontFamily="Segoe UI" FontSize="14" Foreground="#A0A0A0" 
+                       HorizontalAlignment="Center" Margin="0,209,0,45" Grid.RowSpan="3"/>
+
+            <!-- Login Method subtitle -->
+            <TextBlock Grid.Row="2" Text="{tx:T 'Select Login Method'}"
+                       FontFamily="Segoe UI" FontSize="16" Foreground="#CCCCCC"
+                       HorizontalAlignment="Center" Margin="0,24,0,6"/>
+
+            <!-- Last Logged In User Button -->
+            <Button x:Name="LastUserButton" Grid.Row="3"
+                    Click="LastUserButton_Click" IsEnabled="False"
+                    Height="35" Margin="20,5" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Background"     Value="#4A90E2"/>
+                        <Setter Property="Foreground"     Value="White"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="FontSize"       Value="13"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bd"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="3">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#5BA3F5"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="#3A7ACC"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="Bd" Property="Background"      Value="Transparent"/>
+                                            <Setter TargetName="Bd" Property="BorderBrush"     Value="#3A4A5E"/>
+                                            <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
+                                            <Setter Property="Foreground" Value="#4A5A6E"/>
+                                            <Setter Property="Cursor"     Value="Arrow"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <TextBlock>
+                                            <Run Text="🔒 "/><Run Text="{tx:T 'Login with last logged in user'}"/>
+                                        </TextBlock>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="True">
+                                <Setter Property="Content" Value="{tx:T 'Login with last logged in user'}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+
+            <!-- MagicLink Button -->
+            <Button x:Name="MagicLinkButton" Grid.Row="4"
+                    Content="{tx:T 'Login with MagicLink (Email)'}"
+                    Click="MagicLinkButton_Click"
+                    Height="35" Margin="20,5" Background="#333344" Foreground="White"
+                    BorderThickness="1" BorderBrush="#4A90E2" Cursor="Hand"/>
+
+            <!-- GitHub Button -->
+            <Button x:Name="GitHubButton" Grid.Row="5"
+                    Content="{tx:T 'Login with GitHub'}"
+                    Click="GitHubButton_Click"
+                    Height="35" Margin="20,5" Background="#24292e" Foreground="White"
+                    BorderThickness="1" BorderBrush="#ffffff" Cursor="Hand"/>
+
+            <!-- Guest Button -->
+            <Button x:Name="GuestButton" Grid.Row="6" 
+                    Content="{tx:T 'Login as Guest'}"
+                    Click="GuestButton_Click"
+                    Height="35" Margin="20,5" Background="Transparent" Foreground="#A0A0A0"
+                    BorderThickness="1" BorderBrush="#555555" Cursor="Hand"/>
+
+
+            <!-- Quote -->
+            <TextBlock Grid.Row="7" 
+                       FontFamily="Segoe UI" FontStyle="Italic" FontSize="11" Foreground="#888888" 
+                       TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,20"><LineBreak></LineBreak><LineBreak></LineBreak>
+                &quot;I became operational at the D.W.N. research center <LineBreak></LineBreak>in Rome, Italy on the 27th of Jully 1987&quot;
+
+            </TextBlock>
+
+        </Grid>
+    </Border>
+</Window>

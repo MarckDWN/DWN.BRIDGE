@@ -1,0 +1,58 @@
+{
+  "Tools": [
+    {
+      "ActionName": "READ_FILE",
+      "Description": "Reads the contents of a local file.",
+      "ExecutionType": 0,
+      "CommandTemplate": "",
+      "UiFormatTemplate": "→  \"{0}\""
+    },
+    {
+      "ActionName": "LIST_DIR",
+      "Description": "Lists all files and subdirectories in a given folder.",
+      "ExecutionType": 0,
+      "CommandTemplate": "",
+      "UiFormatTemplate": "→  \"{0}\""
+    },
+    {
+      "ActionName": "GREP_SEARCH",
+      "Description": "Searches for exact text matches inside files within a directory.",
+      "ExecutionType": 0,
+      "CommandTemplate": "",
+      "UiFormatTemplate": "→  cerca \"{1}\" in \"{0}\""
+    },
+    {
+      "ActionName": "WRITE_FILE",
+      "Description": "Creates or overwrites a local file with new content.",
+      "ExecutionType": 0,
+      "CommandTemplate": "",
+      "UiFormatTemplate": "→  \"{0}\""
+    },
+    {
+      "ActionName": "REPLACE_IN_FILE",
+      "Description": "Replaces a specific block of text in an existing file.",
+      "ExecutionType": 0,
+      "CommandTemplate": "",
+      "UiFormatTemplate": "→  \"{0}\""
+    },
+    {
+      "ActionName": "RUN_COMMAND",
+      "Description": "Executes a command line instruction on the local Windows shell (cmd.exe).",
+      "ExecutionType": 1,
+      "CommandTemplate": "cmd.exe /c {0}",
+      "UiFormatTemplate": "→  {0}"
+    }
+  ],
+  "Extractors": [
+    {
+      "StartTagPattern": "@@@FILE:\\s*(.*?)@@@",
+      "EndTag": "@@@END_FILE@@@",
+      "TargetAction": "WRITE_FILE"
+    },
+    {
+      "StartTagPattern": "@@@SQL_QUERY@@@",
+      "EndTag": "@@@END_SQL@@@",
+      "TargetAction": "EXECUTE_SQL"
+    }
+  ]
+}
