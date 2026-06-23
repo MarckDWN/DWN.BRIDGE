@@ -7,6 +7,9 @@
 By leveraging stealth browser automation (Playwright), it bypasses the need for expensive API tokens, allowing you to run a fully capable Agentic AI directly on your machine. The AI can read your files, execute commands, and write code on your behalf, without you ever paying a cent in API costs.
 
 ---
+**DWN.BRIDGE LATEST RELEASE INSTALLER  (WINDOWS CLICKONCE)**
+[HTTPS](https://www.dwnbridge.org/)
+---
 
 ## ⚡ Architecture
 This repository contains the **Open-Source Thin Client** (WPF / .NET 10). It is purposefully designed as a "dumb proxy":
@@ -20,7 +23,6 @@ If you prefer to compile the code from source instead of using the pre-compiled 
 2. Ensure you have the .NET 10 SDK installed.
 3. Open `AIBridge.sln` in Visual Studio or your favorite IDE.
 4. Compile the `AIBridge` project in `Debug` or `Release` mode.
-5. *(Optional)* If you have proprietary extensions (e.g. `AIBridge.LocalPersistence.dll`), drop them in the `bin/Debug/net10.0-windows/extensions` folder.
 
 ## 🤝 Community Agents
 The community is encouraged to build and share custom `.md` Agent definitions.
