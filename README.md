@@ -8,7 +8,8 @@ By leveraging stealth browser automation (Playwright), it bypasses the need for 
 
 ---
 **DWN.BRIDGE LATEST RELEASE INSTALLER  (WINDOWS CLICKONCE)**
-[HTTPS](https://www.dwnbridge.org/)
+
+[www.dwnbridge.org](https://www.dwnbridge.org/)
 ---
 
 ## ⚡ Architecture
