@@ -12,6 +12,14 @@ By leveraging stealth browser automation (Playwright), it bypasses the need for 
 [www.dwnbridge.org](https://www.dwnbridge.org/)
 ---
 
+---
+**DWN.BRIDGE YOUTUBE OFFICIAL DEMO VIDEO CHANNEL**
+
+[www.youtube.com](https://www.youtube.com/@MarckDwn)
+
+---
+
+
 ## ⚡ Architecture
 This repository contains the **Open-Source Thin Client** (WPF / .NET 10). It is purposefully designed as a "dumb proxy":
 - **Total Transparency**: It interacts directly with your local File System and Command Line. Being open-source means you can audit the code and compile it yourself. No backdoors.
@@ -29,5 +37,11 @@ If you prefer to compile the code from source instead of using the pre-compiled 
 The community is encouraged to build and share custom `.md` Agent definitions.
 Currently, this client supports local custom agents. Just create your markdown profile in the app, map the dynamic tools, and unleash the AI.
 
+---
+**DWN.BRIDGE JOIN OUR COMMUNITY ON DISCORD**
+
+[dwn.bridge community](https://discord.gg/45W4KDue8a)
+
+---
 ## ⚖️ License
 Released under the MIT License. See `LICENSE` for details.
