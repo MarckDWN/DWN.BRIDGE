@@ -29,12 +29,12 @@ Instead of paying for expensive cloud API tokens that burn through your budget, 
 
 ```mermaid
 graph TD
-    subgraph Local PC (Client Side)
+    subgraph "Local PC (Client Side)"
         App[C# WPF Native App] -->|Automates via WebView2 / Playwright| Browser[Free Gemini Web Session]
         App -->|Executes locally| Shell[Sandboxed CLI / Script Host]
         App -->|Queries locally| DB[(Local DB / Excel / CSV)]
     end
-    subgraph Cloud Brain (Secure Orchestration)
+    subgraph "Cloud Brain (Secure Orchestration)"
         Browser <-->|Web Interaction| Cloud[Google Gemini LLM]
         App <-->|Encrypted AES-GCM Payloads| Server[Private CloudBrain Server]
     end
