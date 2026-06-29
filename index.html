@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DWN.Bridge - The Manifesto</title>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <meta name="description" content="Free agentic AI from the monopoly of big corporations.">
+    <link rel="canonical" href="https://www.dwnbridge.org/">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981; /* Un verde Matrix/Cyberpunk */
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg-color: #050505;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(16, 185, 129, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 2rem 0;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .ambient-light {
+            position: absolute;
+            width: 40vw;
+            height: 40vw;
+            background: var(--primary);
+            filter: blur(150px);
+            opacity: 0.1;
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out alternate;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-10%, -10%); }
+            100% { transform: translate(10%, 10%); }
+        }
+
+        .glass-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 4rem 3rem;
+            width: 90%;
+            max-width: 650px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        @keyframes fadeUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .app-logo {
+            width: 100px;
+            height: auto;
+            border-radius: 20px;
+            margin: 0 auto 1.5rem;
+            display: block;
+            box-shadow: 0 10px 20px var(--primary-glow);
+            filter: grayscale(0.2) contrast(1.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .quote {
+            font-style: italic;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.05);
+            padding: 1.5rem;
+            border-left: 4px solid #10b981;
+            border-radius: 4px;
+            margin: 2rem 0;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            text-align: left;
+            position: relative;
+        }
+
+        .quote::after {
+            content: '— MarckDWN';
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            font-style: normal;
+        }
+
+        .manifesto-box {
+            text-align: left;
+            margin: 2rem 0;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .manifesto-box h2 {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 0.8rem;
+            margin-top: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .manifesto-box h2::before {
+            content: '>';
+            color: var(--primary);
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .manifesto-box p {
+            color: var(--text-muted);
+            font-weight: 300;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+        }
+
+        .manifesto-box strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Access Button */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: transparent;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 1.2rem 3rem;
+            border-radius: 100px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--primary);
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+
+        .download-btn:hover {
+            color: var(--bg-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px var(--primary-glow);
+        }
+
+        .download-btn:hover::before {
+            left: 0;
+        }
+
+        /* Social Buttons */
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.8rem 1.5rem;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .social-btn svg {
+            width: 20px;
+            height: 20px;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .social-btn span {
+            z-index: 1;
+            position: relative;
+        }
+
+        .social-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            transition: all 0.4s ease;
+            z-index: 0;
+        }
+
+        .social-btn.discord {
+            color: #5865F2;
+            border: 1px solid rgba(88, 101, 242, 0.4);
+            box-shadow: 0 0 15px rgba(88, 101, 242, 0.1);
+        }
+        
+        .social-btn.discord::before {
+            background: #5865F2;
+        }
+
+        .social-btn.discord:hover {
+            color: #fff;
+            border-color: #5865F2;
+            box-shadow: 0 0 25px rgba(88, 101, 242, 0.5);
+        }
+
+        .social-btn.youtube {
+            color: #FF0000;
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
+        }
+
+        .social-btn.youtube::before {
+            background: #FF0000;
+        }
+
+        .social-btn.youtube:hover {
+            color: #fff;
+            border-color: #FF0000;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
+        }
+
+        .social-btn.blog {
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+        }
+
+        .social-btn.blog::before {
+            background: #10b981;
+        }
+
+        .social-btn.blog:hover {
+            color: #050505;
+            border-color: #10b981;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+        }
+
+        .social-btn:hover::before {
+            left: 0;
+        }
+
+        @media (max-width: 600px) {
+            .glass-container {
+                padding: 2rem 1.2rem;
+                width: 95%;
+            }
+            .app-logo {
+                width: 80px;
+                margin-bottom: 1rem;
+            }
+            h1 { 
+                font-size: 1.8rem; 
+            }
+            .quote { 
+                font-size: 1rem; 
+                padding: 1rem;
+                margin: 1.5rem 0;
+            }
+            .manifesto-box h2 {
+                font-size: 1.15rem;
+            }
+            .manifesto-box p {
+                font-size: 0.95rem;
+            }
+            .download-btn {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+                width: 100%;
+                margin-top: 1.5rem;
+            }
+            .social-links {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            .social-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-light"></div>
+
+    <div class="glass-container">
+        <img src="splash_logo.png" alt="DWN.Bridge Logo" class="app-logo" />
+        <h1>The Manifesto</h1>
+        
+        <div class="quote">
+            "Nobody knows me. I just write the rules, my creations bend them.<br>
+            There is no spoon."
+        </div>
+
+        <div class="manifesto-box">
+            <h2>The Goal</h2>
+            <p>To free agentic AI from the monopoly of big corporations.</p>
+            
+            <h2>The Problem</h2>
+            <p>Developers are forced to pay expensive subscriptions for AI IDEs or burn hundreds of dollars on API tokens or run inefficient local LLMs on costly HW. Meanwhile, free web models are incredibly powerful, yet isolated and trapped inside the browser.</p>
+
+            <h2>The Solution</h2>
+            <p><strong>DWN.Bridge</strong> is an open-source desktop application that builds a bridge between free web models (driven seamlessly in the background) and your local File System and Database.</p>
+            <p>No tokens. No subscriptions. Pure local execution power combined with the smartest web brains available.</p>
+        </div>
+
+        <a href="https://www.dwnbridge.org/download/index.html" class="download-btn">
+            Enter the Bridge
+        </a>
+
+        <div class="social-links">
+            <a href="https://discord.gg/45W4KDue8a" target="_blank" class="social-btn discord">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+                <span>Join Discord</span>
+            </a>
+            <a href="https://www.youtube.com/@MarckDwn" target="_blank" class="social-btn youtube">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <span>Watch Demos</span>
+            </a>
+            <a href="./blog/" class="social-btn blog">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                <span>Read the Logs</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Access Logging -->
+    <script>
+        (function() {
+            try {
+                fetch('https://dwnbridge.org/api/logs/web-access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Url: window.location.href,
+                        Referer: document.referrer,
+                        NoteExtra: 'Homepage Access'
+                    })
+                }).catch(err => console.warn('Log skipped:', err));
+            } catch(e) {}
+        })();
+    </script>
+</body>
+</html>

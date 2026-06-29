@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DWN.Bridge - Security Logs</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <meta name="description" content="Technical notes on securing local data analysis and privacy in the AI era.">
+    <link rel="canonical" href="https://www.dwnbridge.org/blog/">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981; /* Matrix Green */
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg-color: #050505;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(16, 185, 129, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 4rem 0;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .ambient-light {
+            position: absolute;
+            width: 45vw;
+            height: 45vw;
+            background: var(--primary);
+            filter: blur(160px);
+            opacity: 0.08;
+            border-radius: 50%;
+            top: 10%;
+            left: 20%;
+            z-index: -1;
+        }
+
+        .glass-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3.5rem 3rem;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-link:hover {
+            transform: translateX(-4px);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            line-height: 1.5;
+        }
+
+        .log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .log-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .log-card:hover {
+            border-color: var(--glass-border);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .log-meta {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .log-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .log-card h2 a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .log-card h2 a:hover {
+            color: var(--primary);
+        }
+
+        .log-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 1rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+        }
+
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: letter-spacing 0.2s;
+        }
+
+        .log-card:hover .read-more {
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .glass-container {
+                padding: 2rem 1.5rem;
+                width: 95%;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            .log-card {
+                padding: 1.5rem;
+            }
+            .log-card h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-light"></div>
+
+    <div class="glass-container">
+        <a href="../" class="back-link">&lt; Back to Home</a>
+        <h1>Security Logs</h1>
+        <p class="subtitle">Technical explorations in data isolation, zero-knowledge execution, and secure browser-assisted automation.</p>
+        
+        <div class="log-list">
+            <!-- Post 1 -->
+            <article class="log-card">
+                <div class="log-meta">29 June 2026 • 6 min read</div>
+                <h2><a href="./securing-local-data-ai/">Securing Local Data in the AI Era: Building a Zero-Knowledge Agent Bridge</a></h2>
+                <p>How to use cloud-based LLM chatbots to analyze spreadsheets, source code, and SQL databases without exposing your private raw data to the web.</p>
+                <a href="./securing-local-data-ai/" class="read-more">Read Log_</a>
+            </article>
+        </div>
+    </div>
+
+    <!-- Access Logging -->
+    <script>
+        (function() {
+            try {
+                fetch('https://dwnbridge.org/api/logs/web-access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Url: window.location.href,
+                        Referer: document.referrer,
+                        NoteExtra: 'Blog Index Access'
+                    })
+                }).catch(err => console.warn('Log skipped:', err));
+            } catch(e) {}
+        })();
+    </script>
+</body>
+</html>

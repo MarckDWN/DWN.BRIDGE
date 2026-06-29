@@ -1,0 +1,9 @@
+download/
+*.exe
+*.msi
+*.msu
+*.deploy
+*.manifest
+*.application
+robots.txt
+sitemap.xml
