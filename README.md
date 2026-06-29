@@ -16,7 +16,7 @@ Instead of paying for expensive cloud API tokens that burn through your budget, 
 
 ## ✨ Features
 
-- **💸 $0 API Bills**: Automate complex tasks and let agents run in loops for hours without paying a single cent for token consumption.
+- **📉 Optimized Operational Costs**: Leverage the native capabilities of public web chat interfaces (such as Google Gemini, ChatGPT, and Claude) to orchestrate agentic workflows, drastically reducing typical API dependency and operational overhead.
 - **🔒 Zero-Knowledge Privacy**: When querying databases (SQL Server, PostgreSQL, Excel, CSV), the client parses metadata/schemas locally and sends *only the schema* to the LLM. The LLM generates the query, and the client executes it locally. Your raw data never leaves your hard drive.
 - **🛠️ Local Tool Integration**: Exposes filesystem operations (`READ_FILE`, `WRITE_FILE`), system commands (`RUN_COMMAND`), and SQL execution directly to the web chat session.
 - **🤖 Custom Markdown Agents**: Author custom agents using simple Markdown profiles. Just describe their personality, list their tools, and publish them to your local directory.
