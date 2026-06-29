@@ -1,47 +1,79 @@
-# DWN.BRIDGE 
+# 🤖 DWN.BRIDGE
+
 <!-- VERSION_BADGE --> *Sync based on Private Release: **v1.0.0.36***
+
 > "Faceless. Nameless. I just build the simulation. 'I can only show you the door. You're the one that has to walk through it.'" 💊
 
-**DWN.BRIDGE** is an open-source, hacker-friendly Thin Client that bridges the gap between powerful, free web-based LLMs (like Google Gemini) and your local environment. 
-
-By leveraging stealth browser automation (Playwright), it bypasses the need for expensive API tokens, allowing you to run a fully capable Agentic AI directly on your machine. The AI can read your files, execute commands, and write code on your behalf, without you ever paying a cent in API costs.
-
----
-**DWN.BRIDGE LATEST RELEASE INSTALLER  (WINDOWS CLICKONCE)**
-
-[www.dwnbridge.org](https://www.dwnbridge.org/)
 ---
 
----
-**DWN.BRIDGE YOUTUBE OFFICIAL DEMO VIDEO CHANNEL**
+**DWN.BRIDGE** is an open-source, developer-first native Windows client that turns your free web-based LLMs (like Google Gemini) into fully autonomous local agents with **zero API costs** and **100% raw data privacy**.
 
-[www.youtube.com](https://www.youtube.com/@MarckDwn)
+Instead of paying for expensive cloud API tokens that burn through your budget, **DWN.BRIDGE** leverages a native WebView2/Playwright bridge to safely automate your browser session. It exposes a sandboxed local environment to the AI, allowing it to read/write files, write code, and query local databases while keeping your sensitive raw data on your own machine.
+
+### 🌐 [ClickOnce Installer](https://www.dwnbridge.org/) | 📺 [Demo Channel](https://www.youtube.com/@MarckDwn) | 💬 [Join Discord](https://discord.gg/45W4KDue8a)
 
 ---
 
+## ✨ Features
 
-## ⚡ Architecture
-This repository contains the **Open-Source Thin Client** (WPF / .NET 10). It is purposefully designed as a "dumb proxy":
-- **Total Transparency**: It interacts directly with your local File System and Command Line. Being open-source means you can audit the code and compile it yourself. No backdoors.
-- **Dynamic Tools**: Tools like `READ_FILE`, `WRITE_FILE`, and `RUN_COMMAND` are executed locally, safely within a sandboxed terminal.
-- **The "Cloud Brain"**: The heavy lifting of Prompt Engineering, Agent orchestration, and Context Management is offloaded to a proprietary, private backend Server. The Client and Server communicate via heavily encrypted AES-GCM payloads.
+- **💸 $0 API Bills**: Automate complex tasks and let agents run in loops for hours without paying a single cent for token consumption.
+- **🔒 Zero-Knowledge Privacy**: When querying databases (SQL Server, PostgreSQL, Excel, CSV), the client parses metadata/schemas locally and sends *only the schema* to the LLM. The LLM generates the query, and the client executes it locally. Your raw data never leaves your hard drive.
+- **🛠️ Local Tool Integration**: Exposes filesystem operations (`READ_FILE`, `WRITE_FILE`), system commands (`RUN_COMMAND`), and SQL execution directly to the web chat session.
+- **🤖 Custom Markdown Agents**: Author custom agents using simple Markdown profiles. Just describe their personality, list their tools, and publish them to your local directory.
+- **⚡ High-Performance Native UI**: Written in C# WPF, optimized for low resource usage compared to bloated Electron-based alternatives.
+- **🌍 Multilingual support**: Complete interface localized in 9 languages (EN, IT, ES, FR, DE, ZH, RU, JA, KO, PT).
+
+---
+
+## 📐 How it Works (Architecture)
+
+```mermaid
+graph TD
+    subgraph Local PC (Client Side)
+        App[C# WPF Native App] -->|Automates via WebView2 / Playwright| Browser[Free Gemini Web Session]
+        App -->|Executes locally| Shell[Sandboxed CLI / Script Host]
+        App -->|Queries locally| DB[(Local DB / Excel / CSV)]
+    end
+    subgraph Cloud Brain (Secure Orchestration)
+        Browser <-->|Web Interaction| Cloud[Google Gemini LLM]
+        App <-->|Encrypted AES-GCM Payloads| Server[Private CloudBrain Server]
+    end
+    
+    style App fill:#3B82F6,stroke:#1E3A8A,stroke-width:2px,color:#fff
+    style Browser fill:#10B981,stroke:#047857,stroke-width:2px,color:#fff
+    style Server fill:#8B5CF6,stroke:#5B21B6,stroke-width:2px,color:#fff
+```
+
+1. **Browser Bridge**: The client uses a stealth browser-automation layer to establish a direct link with your free Gemini Web UI.
+2. **Encrypted Communication**: The client communicates with the private CloudBrain orchestrator via AES-GCM encrypted payloads to sync prompts and context safely.
+3. **Local Action execution**: When the LLM requests a tool call (e.g. running a script or fetching directory contents), the client intercepts the request, runs it locally, and feeds the output back into the chat.
+
+---
 
 ## 🛠️ How to run (Hacker Mode)
-If you prefer to compile the code from source instead of using the pre-compiled ClickOnce installer:
-1. Clone this repository.
-2. Ensure you have the .NET 10 SDK installed.
-3. Open `AIBridge.sln` in Visual Studio or your favorite IDE.
-4. Compile the `AIBridge` project in `Debug` or `Release` mode.
+
+If you prefer to compile the client from source rather than using the pre-compiled installer:
+
+### Prerequisites
+- .NET 10 SDK
+
+### Steps
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/MarckDWN/DWN.BRIDGE.git
+   ```
+2. Open `AIBridge.sln` in Visual Studio or Rider.
+3. Build and run the `AIBridge` project in `Debug` or `Release` mode.
+
+---
 
 ## 🤝 Community Agents
-The community is encouraged to build and share custom `.md` Agent definitions.
-Currently, this client supports local custom agents. Just create your markdown profile in the app, map the dynamic tools, and unleash the AI.
+We welcome and encourage custom agent profiles! You can map dynamic tools and create personalized assistants. 
+Simply define your agent in a `.md` file, place it in the custom agent directory:
+`%AppData%\Local\AIBridge\customagents\<your-user-email>\`
+and refresh the UI to test it!
 
 ---
-**DWN.BRIDGE JOIN OUR COMMUNITY ON DISCORD**
 
-[dwn.bridge community](https://discord.gg/45W4KDue8a)
-
----
 ## ⚖️ License
-Released under the MIT License. See `LICENSE` for details.
+This project is licensed under the MIT License. See the LICENSE file for details.
