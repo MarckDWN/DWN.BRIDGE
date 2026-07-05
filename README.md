@@ -75,5 +75,11 @@ and refresh the UI to test it!
 
 ---
 
+## 🤝 Contributing
+We are looking for co-maintainers and contributors to help build new database drivers, refine the C# WPF UI, and optimize local sandboxing. Please read our [CONTRIBUTING.md](file:///c:/Users/orlan/source/repos/AIBridge/CONTRIBUTING.md) guide to get started!
+
+---
+
 ## ⚖️ License
 This project is licensed under the MIT License. See the LICENSE file for details.
+
