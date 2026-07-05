@@ -12,6 +12,8 @@ Instead of paying for expensive cloud API tokens that burn through your budget, 
 
 ### 🌐 [ClickOnce Installer](https://www.dwnbridge.org/) | 🌐 [GitHub Mirror](https://marckdwn.github.io/DWN.BRIDGE/) | 📄 [Security Logs / Blog](https://www.dwnbridge.org/blog/) | 📺 [Demo Channel](https://www.youtube.com/@MarckDwn) | 💬 [Join Discord](https://discord.gg/45W4KDue8a)
 
+[![DWN.BRIDGE Demo Video](Docs/dwnbridge_short.gif)](https://www.youtube.com/watch?v=dCtOsXAuPgc)
+
 ---
 
 ## ✨ Features
