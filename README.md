@@ -74,15 +74,13 @@ If you prefer to compile the client from source rather than using the pre-compil
    ```
    *(Alternatively, you can open `AIBridge.sln` in Visual Studio 2022 / Rider and build from the IDE, provided you have .NET 10 SDK installed).*
 
-3. **Install Playwright Browsers:**
-   Playwright requires local browser binaries (Chromium) to run. Navigate to the build output directory and run the installation script:
+3. **Launch the Application:**
+   Navigate to the output folder and run `DWN.Bridge.exe`:
    ```powershell
    cd bin\Debug\net10.0-windows
-   powershell -File playwright.ps1 install
+   .\DWN.Bridge.exe
    ```
-
-4. **Launch the Application:**
-   Run `DWN.Bridge.exe` from the output folder.
+   *(Note: On the first launch, the application will automatically download the Chromium binaries in background, showing a loading indicator. No manual installation is needed!).*
 
 ---
 
