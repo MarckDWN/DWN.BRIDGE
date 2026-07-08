@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.6.11806.211
@@ -6,8 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIBridge", "AIBridge.csproj", "{9722907A-00EB-5346-FABD-F203573A998C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIBridge.Shared", "AIBridge.Shared\AIBridge.Shared.csproj", "{8DD120A8-9A3A-4834-9696-C730A17F1479}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIBridge.ToolCore", "AIBridge.ToolCore\AIBridge.ToolCore.csproj", "{DB7CD038-D78F-4BDC-A233-EA2E43297511}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,18 +41,6 @@ Global
 		{8DD120A8-9A3A-4834-9696-C730A17F1479}.Release|x64.Build.0 = Release|Any CPU
 		{8DD120A8-9A3A-4834-9696-C730A17F1479}.Release|x86.ActiveCfg = Release|Any CPU
 		{8DD120A8-9A3A-4834-9696-C730A17F1479}.Release|x86.Build.0 = Release|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Debug|x64.Build.0 = Debug|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Debug|x86.Build.0 = Debug|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Release|x64.ActiveCfg = Release|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Release|x64.Build.0 = Release|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Release|x86.ActiveCfg = Release|Any CPU
-		{DB7CD038-D78F-4BDC-A233-EA2E43297511}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

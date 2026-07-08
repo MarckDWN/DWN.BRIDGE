@@ -72,22 +72,7 @@
   </ItemGroup>
 
 
-  <!-- Riferimenti per forzare la compilazione delle estensioni Open Source -->
-  <ItemGroup>
-    <ProjectReference Include="AIBridge.ToolCore\AIBridge.ToolCore.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <SetTargetFramework>TargetFramework=net10.0</SetTargetFramework>
-    </ProjectReference>
-  </ItemGroup>
 
-  <!-- Copiale nella cartella extensions (SOLO IN DEBUG LOCALE) -->
-  <Target Name="CopyExtensionLocalDebug" AfterTargets="Build" Condition="'$(DeployOnBuild)' != 'true' And '$(PublishProtocol)' == ''">
-    <ItemGroup>
-      <CoreExtensionFiles Include="$(MSBuildThisFileDirectory)AIBridge.ToolCore\bin\$(Configuration)\net10.0\AIBridge.ToolCore.dll" />
-    </ItemGroup>
-    <MakeDir Directories="$(OutDir)extensions" Condition="!Exists('$(OutDir)extensions')" />
-    <Copy SourceFiles="@(CoreExtensionFiles)" DestinationFolder="$(OutDir)extensions" />
-  </Target>
 
   <!-- Copia i binari delle estensioni proprietarie pre-compilate forniti nel repo -->
   <ItemGroup>
