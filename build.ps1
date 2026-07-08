@@ -32,8 +32,8 @@ if (-not $hasNet10) {
             if (Test-Path $localDotnetPath) {
                 $env:PATH += ";$localDotnetPath"
                 Write-Host "Local .NET SDK added to current session PATH." -ForegroundColor Green
-                Write-Host "Retrying build now..." -ForegroundColor Green
-                dotnet build -c Debug
+                Write-Host "Retrying build now with official NuGet v3 source..." -ForegroundColor Green
+                dotnet build -c Debug --source https://api.nuget.org/v3/index.json
                 exit 0
             } else {
                 Write-Host "Installation completed, but local path not found. Please download and install .NET 10 manually from: https://dotnet.microsoft.com/download/dotnet/10.0" -ForegroundColor Yellow
@@ -45,6 +45,6 @@ if (-not $hasNet10) {
     exit 1
 }
 
-# Se l'SDK è installato, esegui il build normalmente
-Write-Host "Building project in Debug mode..." -ForegroundColor Green
-dotnet build -c Debug
+# Se l'SDK è installato, esegui il build indicando esplicitamente la sorgente ufficiale NuGet v3
+Write-Host "Building project in Debug mode using official NuGet v3 source..." -ForegroundColor Green
+dotnet build -c Debug --source https://api.nuget.org/v3/index.json
