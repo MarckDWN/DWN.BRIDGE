@@ -52,20 +52,37 @@ graph TD
 
 ---
 
-## 🛠️ How to run (Hacker Mode)
+## 🛠️ How to Build (Developer Mode)
 
 If you prefer to compile the client from source rather than using the pre-compiled installer:
 
 ### Prerequisites
-- .NET 10 SDK
+- **.NET 10.0 SDK** (verified via `global.json`). If you do not have it, the build script will offer to install it automatically using `winget`.
 
 ### Steps
-1. Clone this repository:
+
+1. **Clone this repository:**
    ```bash
    git clone https://github.com/MarckDWN/DWN.BRIDGE.git
+   cd DWN.BRIDGE
    ```
-2. Open `AIBridge.sln` in Visual Studio or Rider.
-3. Build and run the `AIBridge` project in `Debug` or `Release` mode.
+
+2. **Compile the project:**
+   Run the automated build script in PowerShell. It will verify your SDK version, prompt to install .NET 10 if missing, and restore/build the solution:
+   ```powershell
+   .\build.ps1
+   ```
+   *(Alternatively, you can open `AIBridge.sln` in Visual Studio 2022 / Rider and build from the IDE, provided you have .NET 10 SDK installed).*
+
+3. **Install Playwright Browsers:**
+   Playwright requires local browser binaries (Chromium) to run. Navigate to the build output directory and run the installation script:
+   ```powershell
+   cd bin\Debug\net10.0-windows
+   powershell -File playwright.ps1 install
+   ```
+
+4. **Launch the Application:**
+   Run `DWN.Bridge.exe` from the output folder.
 
 ---
 
