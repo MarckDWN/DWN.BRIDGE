@@ -1,0 +1,363 @@
+using ApprovalTests;
+using ApprovalTests.Reporters;
+using MdXaml.Plugins;
+using MdXamlTest;
+using NUnit.Framework;
+using System;
+using System.IO;
+using System.IO.Packaging;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Windows;
+using System.Windows.Markup;
+using System.Windows.Threading;
+
+
+namespace MdXaml.Test
+{
+    [UseReporter(typeof(DiffReporter))]
+    public class Tests
+    {
+        static Tests()
+        {
+            var fwNm = Utils.GetRuntimeName();
+            Approvals.RegisterDefaultNamerCreation(() => new ChangeOutputPathNamer("Out/" + fwNm));
+        }
+
+        readonly string assetPath;
+        readonly Uri baseUri;
+
+
+        public Tests()
+        {
+            PackUriHelper.Create(new Uri("http://example.com"));
+
+            var asm = Assembly.GetExecutingAssembly();
+            assetPath = Path.GetDirectoryName(asm.Location);
+            baseUri = new Uri($"pack://application:,,,/{asm.GetName().Name};Component/");
+        }
+
+
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenTest1_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Test1.md");
+            var markdown = new Markdown();
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenBoldAndItalic_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("BoldAndItalic1.md");
+            var markdown = new Markdown();
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenLists1_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Lists1.md");
+            var markdown = new Markdown();
+            
+            markdown.DisabledContextMenu = true;
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenLists2_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Lists2.md");
+            var markdown = new Markdown();
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenLists3_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Lists3.md");
+            var markdown = new Markdown();
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenLists4_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Lists4.md");
+            var markdown = new Markdown();
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenOrderedListStart_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("OrderedListStart.md");
+            var markdown = new Markdown();
+            markdown.DisabledContextMenu = true;
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenTables1_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Tables.md");
+            var markdown = new Markdown();
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenTables2_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Tables.md");
+            var markdown = new Markdown()
+            {
+                DisabledTag = true
+            };
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenHorizontalRules_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("HorizontalRules.md");
+            var markdown = new Markdown() {
+                DisabledContextMenu = true,
+            }; 
+            
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenLinksInline1_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Links_inline_style.md");
+            var markdown = new Markdown()
+            {
+                BaseUri = baseUri
+            };
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenLinksInline2_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Links_inline_style.md");
+            var markdown = new Markdown()
+            {
+                BaseUri = baseUri,
+                DisabledTooltip = true,
+            };
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenTextStyles_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Text_style.md");
+            var markdown = new Markdown();
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenImages1_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Images.md");
+            var markdown = new Markdown()
+            {
+                AssetPathRoot = assetPath,
+                BaseUri = baseUri,
+            };
+
+            var result = markdown.Transform(text);
+
+            var resultXaml = Utils.AsXaml(result);
+
+            var assetUri = new Uri(assetPath);
+
+            // change absolute filepath to relative-like
+            resultXaml = resultXaml.Replace("UriSource=\"" + assetPath, "UriSource=\"<assetpathroot>");
+            resultXaml = resultXaml.Replace("Source=\"" + assetUri.AbsoluteUri, "Source=\"<assetpathrooturi>");
+
+            Approvals.Verify(resultXaml);
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenImages2_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Images.md");
+            var markdown = new Markdown()
+            {
+                DisabledLazyLoad = true,
+                AssetPathRoot = assetPath,
+                BaseUri = baseUri,
+            };
+
+            var result = markdown.Transform(text);
+            var resultXaml = Utils.AsXaml(result);
+
+            var assetUri = new Uri(assetPath);
+
+            // change absolute filepath to relative-like
+            resultXaml = resultXaml.Replace("UriSource=\"" + assetPath, "UriSource=\"<assetpathroot>");
+            resultXaml = resultXaml.Replace("Source=\"" + assetUri.AbsoluteUri, "Source=\"<assetpathrooturi>");
+
+            Approvals.Verify(resultXaml);
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenImages3_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Images.md");
+            var markdown = new Markdown()
+            {
+                DisabledTooltip = true,
+                AssetPathRoot = assetPath,
+                BaseUri = baseUri,
+            };
+
+            var result = markdown.Transform(text);
+            var resultXaml = Utils.AsXaml(result);
+
+            var assetUri = new Uri(assetPath);
+
+            // change absolute filepath to relative-like
+            resultXaml = resultXaml.Replace("UriSource=\"" + assetPath, "UriSource=\"<assetpathroot>");
+            resultXaml = resultXaml.Replace("Source=\"" + assetUri.AbsoluteUri, "Source=\"<assetpathrooturi>");
+
+            Approvals.Verify(resultXaml);
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenBlockqoute_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Blockquite.md");
+            var markdown = new Markdown();
+
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenMixing_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Mixing.md");
+            var markdown = new Markdown()
+            {
+                AssetPathRoot = assetPath,
+                BaseUri = baseUri,
+                DisabledContextMenu = true,
+            };
+            
+
+            var result = markdown.Transform(text);
+            var resultXaml = Utils.AsXaml(result);
+
+            var assetUri = new Uri(assetPath);
+
+            // change absolute filepath to relative-like
+            resultXaml = resultXaml.Replace("UriSource=\"" + assetPath, "UriSource=\"<assetpathroot>");
+
+            Approvals.Verify(resultXaml);
+        }
+
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenstring()
+        {
+            var resources = (ResourceDictionary)XamlReader.Parse(Utils.LoadText("IndentTest.xaml"));
+
+            var markdownViewer = new MarkdownScrollViewer()
+            {
+                MarkdownStyle = null,
+            };
+
+            foreach (var idx in Enumerable.Range(1, 4))
+            {
+                var jaggingMarkdown = (string)resources["Indent" + idx];
+                markdownViewer.HereMarkdown = jaggingMarkdown;
+                var document = markdownViewer.Document;
+                Approvals.Verify(Utils.AsXaml(document));
+            }
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenCodes_generatesExpectedResult()
+        {
+            var text = Utils.LoadText("Codes.md");
+            var markdown = new Markdown()
+            {
+                AssetPathRoot = assetPath,
+                DisabledContextMenu = true,
+            };
+            
+
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenEmoji()
+        {
+            var text = Utils.LoadText("Emoji.md");
+            var markdown = new Markdown()
+            {
+                AssetPathRoot = assetPath,
+                BaseUri = baseUri,
+            };
+
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+
+        [Test]
+        [Apartment(ApartmentState.STA)]
+        public void Transform_givenInlineCodes()
+        {
+            var text = Utils.LoadText("InlineCodes.md");
+            var markdown = new Markdown()
+            {
+                AssetPathRoot = assetPath,
+                BaseUri = baseUri,
+            };
+
+            var result = markdown.Transform(text);
+            Approvals.Verify(Utils.AsXaml(result));
+        }
+    }
+}

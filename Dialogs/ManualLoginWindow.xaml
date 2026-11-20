@@ -2,27 +2,270 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-        Title="Google Secure Login" Height="700" Width="900"
-        WindowStartupLocation="CenterOwner"
-        Background="#1E1E1E">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
-        <Border Grid.Row="0" Background="#2D2D30" Padding="15,10">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Effettua l'accesso a Google. La finestra si chiuderà automaticamente a login completato." 
-                           Foreground="#4A90E2" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="Ho Finito (Chiudi)" Padding="10,5" Background="#4A90E2" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" Click="CloseButton_Click"/>
-            </Grid>
-        </Border>
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Accedi – Google"
+        Height="720" Width="1024"
+        MinHeight="500" MinWidth="700"
+        WindowStartupLocation="Manual"
+        Background="#F2F2F2"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+        ShowInTaskbar="False">
 
-        <wv2:WebView2 x:Name="LoginWebView" Grid.Row="1" />
-    </Grid>
+    <!-- WindowChrome: rimuove il frame di Windows mantenendo il resize a 5px dal bordo -->
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="5"
+                            GlassFrameThickness="0" CornerRadius="0"/>
+    </shell:WindowChrome.WindowChrome>
+
+    <Window.Resources>
+
+        <!-- Stile base per i pulsanti della navbar (Back/Forward/Refresh) -->
+        <Style x:Key="NavBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Margin" Value="1,0"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="#3C4043"/>
+            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}"
+                                CornerRadius="17" Width="34" Height="34">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#E0E0E0"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#C8C8C8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Pulsante finestra (minimize / close) nella tab strip -->
+        <Style x:Key="WinBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Foreground" Value="#3C4043"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#D0D0D0"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#B8B8B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Pulsante chiudi: hover rosso -->
+        <Style x:Key="CloseBtn" TargetType="Button" BasedOn="{StaticResource WinBtn}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#C42B1C"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#A32015"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Stile pulsante Done nella status bar -->
+        <Style x:Key="DoneBtn" TargetType="Button">
+            <Setter Property="Background" Value="#1A73E8"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="14,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="{TemplateBinding Background}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#1557B0"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#0F47A1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- Bordo esterno sottile (simula il frame di Chrome) -->
+    <Border BorderBrush="#A8A8A8" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>  <!-- Tab strip (draggabile) -->
+                <RowDefinition Height="48"/>  <!-- Toolbar navigazione -->
+                <RowDefinition Height="1"/>   <!-- Separatore -->
+                <RowDefinition Height="*"/>   <!-- WebView2 -->
+                <RowDefinition Height="28"/>  <!-- Status bar -->
+            </Grid.RowDefinitions>
+
+            <!-- ── TAB STRIP (stile Chrome) ─────────────────────────────────── -->
+            <!-- Intera riga è draggabile; i pulsanti override con IsHitTestVisibleInChrome -->
+            <Border Grid.Row="0" Background="#DEE1E6"
+                    MouseLeftButtonDown="TabStrip_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>    <!-- Area tab -->
+                        <ColumnDefinition Width="Auto"/> <!-- Pulsanti finestra -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Tab attiva (imita il tab aperto di Chrome) -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom">
+                        <Border Background="#F2F2F2" CornerRadius="8,8,0,0"
+                                Margin="8,5,0,0" Padding="12,6,14,0"
+                                MaxWidth="240" MinWidth="160">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Favicon Google (cerchio colorato come placeholder) -->
+                                <Ellipse Grid.Column="0" Width="16" Height="16"
+                                         Fill="#4285F4" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" x:Name="TxtTabTitle"
+                                           Text="Accedi – Google"
+                                           FontFamily="Segoe UI" FontSize="12" Foreground="#202124"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" Margin="0,0,0,2"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Pulsanti finestra: minimizza + chiudi -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button x:Name="BtnMinimize" Style="{StaticResource WinBtn}"
+                                Click="BtnMinimize_Click" ToolTip="Minimizza">
+                            <!-- Segoe MDL2 Assets: Chrome Minimize -->
+                            <TextBlock Text="&#xE921;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="10" Foreground="#3C4043"/>
+                        </Button>
+                        <Button x:Name="BtnWinClose" Style="{StaticResource CloseBtn}"
+                                Click="CloseButton_Click" ToolTip="Fatto / Chiudi">
+                            <!-- Segoe MDL2 Assets: Cancel / Close - Foreground ereditato dal Button (trigger lo imposta White su hover) -->
+                            <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="10"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── TOOLBAR NAVIGAZIONE (stile Chrome) ────────────────────────── -->
+            <Border Grid.Row="1" Background="#F2F2F2" Padding="8,0">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/> <!-- Nav buttons -->
+                        <ColumnDefinition Width="*"/>    <!-- Address bar -->
+                        <ColumnDefinition Width="Auto"/> <!-- Menu kebab -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Back / Forward / Refresh — icone Segoe MDL2 Assets -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,4,0">
+                        <!-- Back: E72B -->
+                        <Button x:Name="BtnBack" Style="{StaticResource NavBtn}"
+                                Click="BtnBack_Click" IsEnabled="False" ToolTip="Indietro"
+                                Content="&#xE72B;"/>
+                        <!-- Forward: E72A -->
+                        <Button x:Name="BtnForward" Style="{StaticResource NavBtn}"
+                                Click="BtnForward_Click" IsEnabled="False" ToolTip="Avanti"
+                                Content="&#xE72A;"/>
+                        <!-- Refresh: E72C -->
+                        <Button x:Name="BtnRefresh" Style="{StaticResource NavBtn}"
+                                Click="BtnRefresh_Click" ToolTip="Ricarica"
+                                Content="&#xE72C;"/>
+                    </StackPanel>
+
+                    <!-- Address bar con icona lucchetto e URL -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="20"
+                            BorderBrush="#DADADA" BorderThickness="1"
+                            Padding="12,0" Height="34" VerticalAlignment="Center">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Lucchetto: E72E (Segoe MDL2 Assets) -->
+                            <TextBlock Grid.Column="0"
+                                       Text="&#xE72E;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="13" Foreground="#1E7D34"
+                                       VerticalAlignment="Center" Margin="0,0,7,0"/>
+                            <TextBlock x:Name="TxtUrl" Grid.Column="1"
+                                       Text="Caricamento..."
+                                       FontFamily="Segoe UI" FontSize="13" Foreground="#202124"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Kebab menu (decorativo, non attivo) -->
+                    <Button Grid.Column="2" Style="{StaticResource NavBtn}"
+                            Margin="4,0,0,0" IsHitTestVisible="False" Opacity="0.35"
+                            ToolTip="Menu" Content="&#xE712;"
+                            FontFamily="Segoe MDL2 Assets" FontSize="16"/>
+                </Grid>
+            </Border>
+
+            <!-- Separatore -->
+            <Rectangle Grid.Row="2" Fill="#DADADA"/>
+
+            <!-- WebView2 -->
+            <wv2:WebView2 x:Name="LoginWebView" Grid.Row="3"/>
+
+            <!-- Overlay bianco a copertura totale: maschera il "black flash" di WebView2.
+                 Il compositor Chromium impiega 2-4s a riprendere dopo Opacity=0.
+                 Mentre riprende, l'utente vede questo overlay (bianco) invece del nero.
+                 MakeVisible() lo dissolve non appena la finestra è visibile. -->
+            <Border x:Name="LoadingOverlay"
+                    Grid.Row="0" Grid.RowSpan="4"
+                    Background="#F2F2F2"
+                    Panel.ZIndex="100"/>
+        </Grid>
+    </Border>
 </Window>

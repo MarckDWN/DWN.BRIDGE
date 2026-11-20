@@ -1,13 +1,8 @@
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AIBridge;
 
@@ -19,10 +14,10 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        
+
         ChatListBox.CommandBindings.Add(new System.Windows.Input.CommandBinding(
             System.Windows.Input.ApplicationCommands.Copy,
-            (s, e) => 
+            (s, e) =>
             {
                 var sb = new System.Text.StringBuilder();
                 foreach (var item in ChatListBox.SelectedItems)
@@ -43,14 +38,14 @@ public partial class MainWindow : Window
                     System.Windows.Clipboard.SetText(sb.ToString().TrimEnd());
                 }
             },
-            (s, e) => 
+            (s, e) =>
             {
                 e.CanExecute = ChatListBox.SelectedItems.Count > 0;
             }
         ));
-        
+
         // Auto-scroll chat to bottom
-        this.Loaded += (s, e) => 
+        this.Loaded += (s, e) =>
         {
             if (this.DataContext is ViewModels.MainViewModel vm)
             {
@@ -63,12 +58,12 @@ public partial class MainWindow : Window
                     }
                 };
             }
-            
+
             // Setup Drag & Drop da TreeView a InputArea
             if (InputAreaGrid != null)
             {
                 InputAreaGrid.AllowDrop = true;
-                
+
                 InputAreaGrid.PreviewDragOver += (sender, args) =>
                 {
                     if (args.Data.GetDataPresent(DataFormats.FileDrop))
@@ -89,7 +84,7 @@ public partial class MainWindow : Window
                         string[] files = (string[])args.Data.GetData(DataFormats.FileDrop);
                         if (this.DataContext is ViewModels.MainViewModel vmodel)
                         {
-                            foreach(var f in files)
+                            foreach (var f in files)
                             {
                                 if (System.IO.File.Exists(f) && !vmodel.AttachedFiles.Contains(f))
                                 {
@@ -102,18 +97,49 @@ public partial class MainWindow : Window
                 };
 
                 // Ensure UI reflects correct auth status on startup
-                ((ViewModels.MainViewModel)this.DataContext).UpdateAuthStatus();
+                var mainVm = (ViewModels.MainViewModel)this.DataContext;
+                mainVm.UpdateAuthStatus();
+
+                var settingsService = new AIBridge.Services.SettingsService();
+                var settings = settingsService.Load();
+                if (settings.ShowAgentSelectionAtStartup)
+                {
+                    _ = System.Threading.Tasks.Task.Delay(500).ContinueWith(t =>
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            var dialog = new AIBridge.Dialogs.AgentSelectionDialog();
+                            dialog.Owner = this;
+                            dialog.DataContext = mainVm;
+                            dialog.DontShowAgain = !settings.ShowAgentSelectionAtStartup;
+
+                            dialog.Closed += (s, args) =>
+                            {
+                                settings.ShowAgentSelectionAtStartup = !dialog.DontShowAgain;
+                                settingsService.Save(settings);
+                            };
+
+                            if (dialog.ShowDialog() == true)
+                            {
+                                if (mainVm.NewChatCommand.CanExecute(null))
+                                {
+                                    mainVm.NewChatCommand.Execute(null);
+                                }
+                            }
+                        });
+                    });
+                }
             }
         };
     }
-    
+
     private Point _startDragPoint;
-    
+
     private void WorkspaceTreeView_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         _startDragPoint = e.GetPosition(null);
     }
-    
+
     private void WorkspaceTreeView_PreviewMouseMove(object sender, MouseEventArgs e)
     {
         if (e.LeftButton == MouseButtonState.Pressed)
@@ -166,10 +192,10 @@ public partial class MainWindow : Window
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) || Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
         {
             e.Handled = true;
-            
+
             var textBox = sender as DependencyObject;
             var listBoxItem = GetAncestorByType<ListBoxItem>(textBox);
-            
+
             if (listBoxItem != null)
             {
                 var args = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, e.ChangedButton)
@@ -222,6 +248,9 @@ public partial class MainWindow : Window
             {
                 propDescriptor.AddValueChanged(mdViewer, (s, args) => ApplyInlineCodeGreenFix(mdViewer));
             }
+
+            // Gestione click su immagine per apertura Visualizzatore Immagini (sinistro = zoom, destro = menu)
+            mdViewer.PreviewMouseDown += MarkdownScrollViewer_PreviewMouseDown;
 
             // FIX ROTELLA MOUSE: Intercettiamo la rotella prima che MdXaml la blocchi internamente
             mdViewer.PreviewMouseWheel += (s, args) =>
@@ -481,6 +510,24 @@ public partial class MainWindow : Window
         }
     }
 
+    private void QuickLoadChat_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement fe && fe.DataContext is Models.ChatSession session)
+        {
+            // Se la conversazione è già attiva, non fare nulla (anche se l'icona è collassata)
+            if (session.IsActive) return;
+
+            // Seleziona la sessione nella lista locale per dare riscontro visivo immediato all'utente
+            HistoryListBox.SelectedItem = session;
+
+            if (this.DataContext is ViewModels.MainViewModel vm)
+            {
+                vm.LoadSessionCommand.Execute(session);
+                e.Handled = true;
+            }
+        }
+    }
+
     private bool _isClosing = false;
     private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
@@ -530,14 +577,14 @@ public partial class MainWindow : Window
 
         var dialog = new MagicLinkLoginDialog(client);
         dialog.Owner = this;
-        
+
         if (dialog.ShowDialog() == true && !string.IsNullOrEmpty(dialog.Token))
         {
             bool linked = await client.LinkAccountAsync(dialog.Token);
             if (linked)
             {
                 AIBridge.Dialogs.CustomMessageBox.Show(Unclassified.TxLib.Tx.T("Login via Email and Account Linking successfully completed!"), Unclassified.TxLib.Tx.T("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
-                
+
                 if (vm != null)
                 {
                     vm.UpdateAuthStatus();
@@ -574,7 +621,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var startResponse = await client.StartOAuthAsync("github"); 
+        var startResponse = await client.StartOAuthAsync("github");
         if (startResponse == null)
         {
             AIBridge.Dialogs.CustomMessageBox.Show(Unclassified.TxLib.Tx.T("Error connecting to server for login."), Unclassified.TxLib.Tx.T("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
@@ -584,7 +631,7 @@ public partial class MainWindow : Window
         string userDataFolder = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIBridge", "WebView2");
         var dialog = new OAuthLoginDialog(startResponse.AuthorizationUrl, userDataFolder);
         dialog.Owner = this;
-        
+
         if (dialog.ShowDialog() == true)
         {
             string code = dialog.AuthorizationCode;
@@ -592,8 +639,8 @@ public partial class MainWindow : Window
 
             if (state != startResponse.State)
             {
-                 AIBridge.Dialogs.CustomMessageBox.Show(Unclassified.TxLib.Tx.T("Security Error: CSRF State mismatch."), Unclassified.TxLib.Tx.T("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
-                 return;
+                AIBridge.Dialogs.CustomMessageBox.Show(Unclassified.TxLib.Tx.T("Security Error: CSRF State mismatch."), Unclassified.TxLib.Tx.T("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
 
             var result = await client.OAuthCallbackAsync("github", code, state);
@@ -603,7 +650,7 @@ public partial class MainWindow : Window
                 if (linked)
                 {
                     AIBridge.Dialogs.CustomMessageBox.Show(Unclassified.TxLib.Tx.T("OAuth Login and Account Linking successfully completed!"), Unclassified.TxLib.Tx.T("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
-                    
+
                     if (vm != null)
                     {
                         vm.UpdateAuthStatus();
@@ -630,10 +677,223 @@ public partial class MainWindow : Window
         about.ShowDialog();
     }
 
+    private void ReportIssueButton_Click(object sender, RoutedEventArgs e)
+    {
+        var client = AIBridge.Services.CloudServiceLocator.Client;
+        var vm = this.DataContext as ViewModels.MainViewModel;
+
+        if (client == null) return;
+
+        if (!client.IsConnected)
+        {
+            AIBridge.Dialogs.CustomMessageBox.Show(
+                Unclassified.TxLib.Tx.T("Offline mode active. You need a connection to the server to submit feedback or report problems."),
+                Unclassified.TxLib.Tx.T("Connection Required"),
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        Guid? activeSessionId = vm?.ActiveSession?.ServerId;
+        string? selectedAgentName = vm?.SelectedAgent?.Name;
+
+        var issuesWindow = new Dialogs.MyIssuesWindow(activeSessionId, selectedAgentName)
+        {
+            Owner = this
+        };
+        issuesWindow.ShowDialog();
+    }
+
     private void MyAgents_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Dialogs.CommunityAgentsDialog();
         dialog.Owner = this;
         dialog.ShowDialog();
+
+        if (this.DataContext is ViewModels.MainViewModel mainVm)
+        {
+            mainVm.RefreshAgents();
+        }
+    }
+
+    private void Wizard_Click(object sender, RoutedEventArgs e)
+    {
+        if (this.DataContext is ViewModels.MainViewModel mainVm)
+        {
+            // Esegui il refresh automatico all'apertura del wizard per catturare nuovi agenti locali/cloud
+            mainVm.RefreshAgents();
+
+            var settingsService = new AIBridge.Services.SettingsService();
+            var settings = settingsService.Load();
+
+            var dialog = new AIBridge.Dialogs.AgentSelectionDialog();
+            dialog.Owner = this;
+            dialog.DataContext = mainVm;
+            dialog.DontShowAgain = !settings.ShowAgentSelectionAtStartup;
+
+            dialog.Closed += (s, args) =>
+            {
+                // Sempre salvare l'impostazione quando la finestra viene chiusa
+                settings.ShowAgentSelectionAtStartup = !dialog.DontShowAgain;
+                settingsService.Save(settings);
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                if (mainVm.NewChatCommand.CanExecute(null))
+                {
+                    mainVm.NewChatCommand.Execute(null);
+                }
+            }
+        }
+    }
+
+    private void MarkdownScrollViewer_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        System.Windows.Controls.Image? img = null;
+        if (e.OriginalSource is System.Windows.Controls.Image targetImg)
+        {
+            img = targetImg;
+        }
+        else if (e.OriginalSource is DependencyObject dep)
+        {
+            img = FindVisualParent<System.Windows.Controls.Image>(dep);
+        }
+
+        if (img != null && img.Source != null)
+        {
+            e.Handled = true;
+
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                // Left click: Open zoom window
+                OpenImageViewer(img.Source);
+            }
+            else if (e.ChangedButton == MouseButton.Right)
+            {
+                // Right click: Open image context menu
+                ShowImageContextMenu(img);
+            }
+        }
+    }
+
+    private void ShowImageContextMenu(System.Windows.Controls.Image img)
+    {
+        var contextMenu = new System.Windows.Controls.ContextMenu();
+
+        var copyItem = new System.Windows.Controls.MenuItem
+        {
+            Header = Unclassified.TxLib.Tx.T("Copia Immagine")
+        };
+        copyItem.Click += (s, args) => CopyImageToClipboard(img.Source);
+        contextMenu.Items.Add(copyItem);
+
+        var saveItem = new System.Windows.Controls.MenuItem
+        {
+            Header = Unclassified.TxLib.Tx.T("Salva con nome...")
+        };
+        saveItem.Click += (s, args) => SaveImageToFile(img.Source);
+        contextMenu.Items.Add(saveItem);
+
+        contextMenu.PlacementTarget = img;
+        contextMenu.IsOpen = true;
+    }
+
+    private void CopyImageToClipboard(ImageSource source)
+    {
+        try
+        {
+            if (source is BitmapSource bitmapSource)
+            {
+                System.Windows.Clipboard.SetImage(bitmapSource);
+            }
+            else
+            {
+                System.Windows.MessageBox.Show(Unclassified.TxLib.Tx.T("Image format not supported for copy."), Unclassified.TxLib.Tx.T("Warning"), MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(Unclassified.TxLib.Tx.T("Unable to copy image to clipboard: {0}", ex.Message), Unclassified.TxLib.Tx.T("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void SaveImageToFile(ImageSource source)
+    {
+        try
+        {
+            if (source is BitmapSource bitmapSource)
+            {
+                var sfd = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "Immagine PNG (*.png)|*.png|Immagine JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|Tutti i file (*.*)|*.*",
+                    DefaultExt = ".png",
+                    FileName = "immagine_gemini.png"
+                };
+
+                if (sfd.ShowDialog() == true)
+                {
+                    using (var fileStream = new System.IO.FileStream(sfd.FileName, System.IO.FileMode.Create))
+                    {
+                        BitmapEncoder encoder;
+                        if (sfd.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || sfd.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+                        {
+                            encoder = new JpegBitmapEncoder();
+                        }
+                        else
+                        {
+                            encoder = new PngBitmapEncoder();
+                        }
+
+                        encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                        encoder.Save(fileStream);
+                    }
+                }
+            }
+            else
+            {
+                System.Windows.MessageBox.Show(Unclassified.TxLib.Tx.T("Image format not supported for saving."), Unclassified.TxLib.Tx.T("Warning"), MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(Unclassified.TxLib.Tx.T("Error saving image: {0}", ex.Message), Unclassified.TxLib.Tx.T("Error"), MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void OpenImageViewer(ImageSource source)
+    {
+        try
+        {
+            var viewer = new AIBridge.Dialogs.ImageViewerWindow(source)
+            {
+                Owner = this
+            };
+            viewer.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show("Impossibile aprire il visualizzatore immagini: " + ex.Message);
+        }
+    }
+
+    private static T? FindVisualParent<T>(DependencyObject child) where T : DependencyObject
+    {
+        if (child == null) return null;
+
+        if (child is not System.Windows.Media.Visual && child is not System.Windows.Media.Media3D.Visual3D)
+        {
+            var parent = LogicalTreeHelper.GetParent(child);
+            if (parent == null) return null;
+            if (parent is T typedParent)
+                return typedParent;
+            return FindVisualParent<T>(parent);
+        }
+
+        DependencyObject parentObject = System.Windows.Media.VisualTreeHelper.GetParent(child);
+        if (parentObject == null) return null;
+        if (parentObject is T visualParent)
+            return visualParent;
+        return FindVisualParent<T>(parentObject);
     }
 }

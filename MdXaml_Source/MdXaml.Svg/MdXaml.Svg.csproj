@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
+    <PackageId>MdXaml.Svg</PackageId>
+    <Version>$(PackageVersion)</Version>
+    <Authors>whistyun</Authors>
+    <Company />
+    <Description>Displays SVG for MdXaml</Description>
+    <Copyright>Copyright (c) 2022 whistyun</Copyright>
+    <PackageProjectUrl>https://github.com/whistyun/MdXaml</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>MdXaml.Svg.md</PackageReadmeFile>
+    <PackageTags>Markdown WPF Xaml FlowDocument</PackageTags>
+    <Configurations>Debug;Release</Configurations>
+
+    <UseWPF>true</UseWPF>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\pack_readme\MdXaml.Svg.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+		<PackageReference Include="Svg" Version="3.0.84" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' != 'net45' ">
+		<PackageReference Include="Svg" Version="3.4.7" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MdXaml.Plugins\MdXaml.Plugins.csproj" />
+    <ProjectReference Include="..\MdXaml\MdXaml.csproj" />
+  </ItemGroup>
+
+</Project>

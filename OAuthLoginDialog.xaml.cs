@@ -1,6 +1,5 @@
-using System;
-using System.Windows;
 using Microsoft.Web.WebView2.Core;
+using System.Windows;
 
 namespace AIBridge
 {
@@ -21,10 +20,10 @@ namespace AIBridge
             {
                 var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder);
                 await OAuthWebView.EnsureCoreWebView2Async(env);
-                
+
                 OAuthWebView.CoreWebView2.NavigationStarting += CoreWebView2_NavigationStarting;
                 OAuthWebView.NavigationCompleted += (s, e) => LoadingPanel.Visibility = Visibility.Collapsed;
-                
+
                 OAuthWebView.Source = new Uri(authUrl);
             }
             catch (Exception ex)
@@ -41,7 +40,7 @@ namespace AIBridge
                 e.Uri.StartsWith("https://aibridge.org/callback", StringComparison.OrdinalIgnoreCase))
             {
                 e.Cancel = true;
-                
+
                 var uri = new Uri(e.Uri);
                 // Simple parsing to avoid HttpUtility dependency if not available, though System.Web is usually present.
                 // Using basic string split to parse query string.
@@ -56,7 +55,7 @@ namespace AIBridge
                         if (kv[0].Equals("state", StringComparison.OrdinalIgnoreCase)) ReturnedState = kv[1];
                     }
                 }
-                
+
                 DialogResult = true;
                 Close();
             }

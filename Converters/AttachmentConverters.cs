@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.IO;
 using System.Windows.Data;
@@ -58,7 +57,7 @@ namespace AIBridge.Converters
                 {
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
-                    bitmap.CacheOption  = BitmapCacheOption.OnLoad;
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.DecodePixelHeight = 56; // 2× thumbnail size for crisp rendering
                     bitmap.UriSource = new Uri(path, UriKind.Absolute);
                     bitmap.EndInit();

@@ -1,6 +1,7 @@
 .vs/
-.agent/
 bin/
 obj/
 docs/
 AIBridge.ToolCore/
+# WPF temporary build projects
+*_wpftmp.csproj

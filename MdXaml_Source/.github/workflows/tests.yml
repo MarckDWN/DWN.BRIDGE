@@ -1,0 +1,59 @@
+name: Test projects for PR
+
+on:
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+
+    - name: Cache Visual Studio package cache
+      uses: actions/cache@v4
+      with:
+        path: C:\ProgramData\Microsoft\VisualStudio\Packages
+        key: vs2022-packages-net461-${{ runner.os }}
+
+    - name: Install component on windows 2022
+      shell: pwsh
+      run: |
+        Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+        $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        $componentsToAdd = @(
+          "Microsoft.Net.Component.4.6.1.SDK"
+        )
+        [string]$workloadArgs = $componentsToAdd | ForEach-Object {" --add " +  $_}
+
+        $Arguments = ('modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart')
+        $process = Start-Process -FilePath vs_installer.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+
+        if ($process.ExitCode -eq 0)
+        {
+            Write-Host "components have been successfully added"
+        }
+        else
+        {
+            Write-Host "components were not installed"
+            exit 1
+        }
+
+
+    - name: Clean
+      run: dotnet clean
+    - name: Restore
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal 
+      env:
+        RUNON_GITHUB: y

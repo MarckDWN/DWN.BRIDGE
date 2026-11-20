@@ -1,7 +1,5 @@
-using System;
-using System.Threading.Tasks;
-using System.Windows;
 using AIBridge.Services;
+using System.Windows;
 
 namespace AIBridge
 {
@@ -53,7 +51,7 @@ namespace AIBridge
             while (_isPolling)
             {
                 await Task.Delay(2000); // Polling ogni 2 secondi
-                
+
                 var status = await _client.PollMagicLinkStatusAsync(sessionId);
                 if (status != null)
                 {

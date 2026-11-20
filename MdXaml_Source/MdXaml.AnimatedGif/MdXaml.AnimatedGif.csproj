@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
+    <PackageId>MdXaml.AnimatedGif</PackageId>
+    <Version>$(PackageVersion)</Version>
+    <Authors>whistyun</Authors>
+    <Company />
+    <Description>Displays AniatedGif for MdXaml</Description>
+    <Copyright>whistyun 2023</Copyright>
+    <PackageProjectUrl>https://github.com/whistyun/MdXaml</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>MdXaml.AnimatedGif.md</PackageReadmeFile>
+    <PackageTags>Markdown WPF Xaml FlowDocument</PackageTags>
+    <Configurations>Debug;Release</Configurations>
+
+    <UseWPF>true</UseWPF>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\pack_readme\MdXaml.AnimatedGif.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MdXaml.Plugins\MdXaml.Plugins.csproj" />
+  </ItemGroup>
+
+</Project>

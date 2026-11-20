@@ -22,6 +22,7 @@ public record AuthResponse
 
     /// <summary>"community" | "pro" | "business" | "enterprise"</summary>
     public string Tier { get; init; } = "community";
+    public string Language { get; init; } = "en-US";
 }
 
 /// <summary>Request per l'account linking Guest → OAuth (POST /api/auth/link).</summary>
@@ -82,4 +83,5 @@ public record MagicLinkStatusResponse
     public string Status { get; init; } = string.Empty; // "pending" | "verified" | "expired"
     public string Token { get; init; } = string.Empty;
     public long UserId { get; init; }
+    public string Language { get; init; } = "en-US";
 }

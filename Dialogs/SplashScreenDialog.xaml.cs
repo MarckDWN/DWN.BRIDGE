@@ -1,10 +1,8 @@
-using System;
+using AIBridge.Services;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml.Linq;
-using AIBridge.Services;
 using Unclassified.TxLib;
 
 namespace AIBridge.Dialogs
@@ -23,9 +21,21 @@ namespace AIBridge.Dialogs
             _hwid = hwid;
             _settingsService = new SettingsService();
 
+            VersionTextBlock.Text = GetAppVersion();
+
             InitLanguages();
 
             Loaded += SplashScreenDialog_Loaded;
+        }
+
+        private string GetAppVersion()
+        {
+            if (Environment.GetEnvironmentVariable("ClickOnce_IsNetworkDeployed")?.ToLower() == "true")
+            {
+                return "v" + (Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion") ?? "1.0.0.0");
+            }
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+            return version == "0.0.0.0" ? "Local Debug" : "v" + version;
         }
 
         private void InitLanguages()
@@ -56,7 +66,12 @@ namespace AIBridge.Dialogs
                             "fr-FR" => "🇫🇷 Français",
                             "de-DE" => "🇩🇪 Deutsch",
                             "es-ES" => "🇪🇸 Español",
+                            "pt-BR" => "🇧🇷 Português (Brasil)",
                             "pt-PT" => "🇵🇹 Português",
+                            "zh-CN" => "🇨🇳 中文",
+                            "ru-RU" => "🇷🇺 Русский",
+                            "ja-JP" => "🇯🇵 日本語",
+                            "ko-KR" => "🇰🇷 한국어",
                             _ => $"🌐 {code}"
                         };
                         AvailableLanguages.Add(new Models.LanguageOption { Code = code!, Display = display });
@@ -141,7 +156,7 @@ namespace AIBridge.Dialogs
                 await client.LoginGuestAsync(_hwid);
                 // Poi facciamo il merge del Guest dentro l'account MagicLink
                 bool linked = await client.LinkAccountAsync(dialog.Token);
-                
+
                 if (linked)
                 {
                     this.DialogResult = true;
@@ -184,7 +199,7 @@ namespace AIBridge.Dialogs
                         await client.LoginGuestAsync(_hwid);
                         // Fonde l'utente Guest con l'account GitHub
                         bool linked = await client.LinkAccountAsync(token);
-                        
+
                         if (linked)
                         {
                             this.DialogResult = true;

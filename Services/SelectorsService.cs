@@ -1,5 +1,4 @@
 using AIBridge.Shared.Models;
-using System.Threading.Tasks;
 
 namespace AIBridge.Services;
 
@@ -12,14 +11,14 @@ public interface ISelectorsService
 public class SelectorsService : ISelectorsService
 {
     private DomSelectors _current = new();
-    
+
     public DomSelectors Current => _current;
 
     public async Task RefreshFromServerAsync()
     {
         var client = CloudServiceLocator.Client;
         if (client == null) return;
-        
+
         var selectors = await client.GetSelectorsAsync();
         if (selectors != null)
         {

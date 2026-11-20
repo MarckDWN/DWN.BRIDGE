@@ -1,7 +1,7 @@
 namespace AIBridge.Shared.Models;
 
 /// <summary>
-/// CSS selectors usati da GeminiBrowserService per interagire col DOM di Gemini.
+/// CSS selectors usati dagli engine WebChat per interagire col DOM di Gemini.
 /// I valori default corrispondono ai selettori attualmente hardcoded nel client.
 /// Vengono aggiornati OTA tramite GET /api/selectors al login e ad ogni heartbeat.
 /// </summary>
@@ -24,4 +24,10 @@ public class DomSelectors
 
     public string MenuItems { get; set; } =
         "[role='menuitem']";
+
+    public string SendButton { get; set; } =
+        "button[aria-label*='Send'], button[aria-label*='Invia'], " +
+        "button[aria-label*='Enviar'], button[aria-label*='Envoyer'], " +
+        "button[aria-label*='Senden'], button[aria-label*='发送'], " +
+        "button[aria-label*='보내기']";
 }

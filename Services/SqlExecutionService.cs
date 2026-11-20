@@ -1,14 +1,13 @@
-using System;
-using System.Data;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using MySql.Data.MySqlClient;
 using Npgsql;
-using System.Data.Common;
-using System.Data.OleDb;
-using System.Data.Odbc;
-using Microsoft.Data.Sqlite;
 using Oracle.ManagedDataAccess.Client;
+using System.Data;
+using System.Data.Common;
+using System.Data.Odbc;
+using System.Data.OleDb;
+using Unclassified.TxLib;
 
 namespace AIBridge.Services
 {
@@ -25,14 +24,14 @@ namespace AIBridge.Services
             using var reader = await command.ExecuteReaderAsync();
             var dataTable = new DataTable();
             dataTable.Load(reader);
-            
+
             return dataTable;
         }
 
         public async Task<string> GetSchemaAsync(string provider, string connectionString)
         {
             var sb = new System.Text.StringBuilder();
-            sb.AppendLine("Schema del Database:");
+            sb.AppendLine(Tx.T("Database Schema:"));
 
             if (provider.ToLower() is "excel" or "oledb" or "odbc" or "db2" or "as400" or "sqlite" or "oracle")
             {
@@ -43,13 +42,13 @@ namespace AIBridge.Services
                 {
                     string tableName = row.Table.Columns.Contains("TABLE_NAME") ? row["TABLE_NAME"]?.ToString() ?? "" : "";
                     string columnName = row.Table.Columns.Contains("COLUMN_NAME") ? row["COLUMN_NAME"]?.ToString() ?? "" : "";
-                    
+
                     string dataType = "";
                     if (row.Table.Columns.Contains("DATA_TYPE")) dataType = row["DATA_TYPE"]?.ToString() ?? "";
                     else if (row.Table.Columns.Contains("DATATYPE")) dataType = row["DATATYPE"]?.ToString() ?? "";
                     else if (row.Table.Columns.Contains("TYPE_NAME")) dataType = row["TYPE_NAME"]?.ToString() ?? "";
 
-                    sb.AppendLine($"- Tabella: {tableName} | Colonna: {columnName} | Tipo: {dataType}");
+                    sb.AppendLine($"- {Tx.T("Table")}: {tableName} | {Tx.T("Column")}: {columnName} | {Tx.T("Type")}: {dataType}");
                 }
                 return sb.ToString();
             }
@@ -68,14 +67,14 @@ namespace AIBridge.Services
                     query = "SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' ORDER BY table_name, ordinal_position";
                     break;
                 default:
-                    throw new NotSupportedException($"Provider {provider} non supportato.");
+                    throw new NotSupportedException(Tx.T("Provider {0} not supported.", provider));
             }
-            
+
             var dt = await ExecuteQueryAsync(provider, connectionString, query);
-            
+
             foreach (DataRow row in dt.Rows)
             {
-                sb.AppendLine($"- Tabella: {row[0]} | Colonna: {row[1]} | Tipo: {row[2]}");
+                sb.AppendLine($"- {Tx.T("Table")}: {row[0]} | {Tx.T("Column")}: {row[1]} | {Tx.T("Type")}: {row[2]}");
             }
             return sb.ToString();
         }
@@ -91,7 +90,7 @@ namespace AIBridge.Services
                 "odbc" or "db2" or "as400" => new OdbcConnection(connectionString),
                 "sqlite" => new SqliteConnection(connectionString),
                 "oracle" => new OracleConnection(connectionString),
-                _ => throw new ArgumentException($"Provider DB '{provider}' non supportato.", nameof(provider))
+                _ => throw new ArgumentException(Tx.T("DB Provider '{0}' not supported.", provider), nameof(provider))
             };
         }
     }

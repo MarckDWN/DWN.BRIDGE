@@ -21,10 +21,16 @@ public interface ICloudBrainClient
     /// <summary>Nome o Email per la UI.</summary>
     string DisplayName { get; }
 
+    /// <summary>Lingua dell'utente (da JWT claim).</summary>
+    string Language { get; }
+
     bool HasValidSavedToken();
     bool AutoLogin();
 
     void ApplyToken(string token);
+
+    /// <summary>Restituisce il JWT corrente in-memory (null se non autenticato). Usato solo per crash reporting.</summary>
+    string? GetCurrentToken();
 
     /// <summary>Login Guest via HWID. Salva il JWT in-memory.</summary>
     Task<bool> LoginGuestAsync(string hwid);
@@ -75,6 +81,12 @@ public interface ICloudBrainClient
 
     // ── Community Agents ─────────────────────────────────────────────────────
     Task<List<CommunityAgentDto>> GetCommunityAgentsAsync();
-    Task<(bool Success, string CompositeKey)> SyncCommunityAgentAsync(SyncAgentRequest request);
+    Task<(bool Success, string CompositeKey, string ErrorMessage)> SyncCommunityAgentAsync(SyncAgentRequest request);
     Task<bool> SubmitCommunityAgentsAsync(List<string> agentKeys);
+    Task<bool> DeleteCommunityAgentAsync(string agentKey);
+
+    // ── Issues & Ticketing ───────────────────────────────────────────────────
+    Task<SubmitIssueResponse> SubmitIssueAsync(SubmitIssueRequest request);
+    Task<List<UserIssueDto>> GetMyIssuesAsync(string hwid);
+    Task<bool> RespondToIssueAsync(Guid issueId, string responseText);
 }

@@ -1,7 +1,10 @@
+using AIBridge.Services;
 using System.IO;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Windows;
-using AIBridge.Services;
 using Unclassified.TxLib;
 
 namespace AIBridge;
@@ -12,6 +15,9 @@ namespace AIBridge;
 public partial class App : Application
 {
     public static AIBridge.Shared.Interfaces.IToolDictionaryService? ToolDictionary { get; private set; }
+
+    // Timestamp di avvio — usato per calcolare AppUptime al momento del crash
+    private static readonly DateTimeOffset _appStartedAt = DateTimeOffset.UtcNow;
 
     public App()
     {
@@ -33,7 +39,14 @@ public partial class App : Application
 
     private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
     {
-        LogFatalError(e.Exception);
+        e.SetObserved();
+        // Logquietly instead of showing a fatal error, because MdXaml often throws HttpRequestException here for broken image links
+        try
+        {
+            var logPath = Path.Combine(Path.GetTempPath(), "AIBridge_Background_Errors.txt");
+            File.AppendAllText(logPath, $"[{DateTime.Now}] {e.Exception}\n\n");
+        }
+        catch { }
     }
 
     private void LogFatalError(Exception ex)
@@ -45,10 +58,27 @@ public partial class App : Application
             AIBridge.Dialogs.CustomMessageBox.Show(Unclassified.TxLib.Tx.T("Critical error on startup.\nA log file was created: {0}\n\nDetails: {1}", logPath, ex.Message), Unclassified.TxLib.Tx.T("Fatal Error"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
         catch { }
+
+        // Invio asincrono al server (best-effort, non blocca il crash dialog)
+        _ = Task.Run(() => TrySendCrashReportAsync(ex));
     }
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        if (e.Args != null && Array.Exists(e.Args, a => a.Equals("--run-acceptance-test", StringComparison.OrdinalIgnoreCase)))
+        {
+            var (allPassed, passedCount, totalCount, log) = AIBridge.AgentCore.FileNatureClassifierTests.RunAcceptanceTest();
+            Console.WriteLine("=== ACCEPTANCE TEST RESULTS ===");
+            Console.WriteLine($"Passed: {passedCount} / {totalCount}");
+            Console.WriteLine($"All Passed: {allPassed}");
+            Console.WriteLine();
+            foreach (var line in log)
+            {
+                Console.WriteLine(line);
+            }
+            Environment.Exit(allPassed ? 0 : 1);
+            return;
+        }
         // NOTE: base.OnStartup(e) fires the Startup event which calls Application_Startup.
         // Application_Startup immediately shows the splash screen.
         // So we MUST initialize Tx BEFORE calling base.OnStartup(e).
@@ -75,6 +105,8 @@ public partial class App : Application
             var culture = System.Globalization.CultureInfo.GetCultureInfo(langCode);
             System.Threading.Thread.CurrentThread.CurrentCulture = culture;
             System.Threading.Thread.CurrentThread.CurrentUICulture = culture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
             Tx.SetCulture(langCode);
         }
         catch
@@ -119,10 +151,10 @@ public partial class App : Application
             System.Windows.MessageBox.Show($"Error loading ToolCore: {ex.Message}");
         }
 
-        var config    = ReadLocalConfig();
-        var baseUrl   = config.GetValueOrDefault("CloudBrain:BaseUrl", "https://localhost:7174");
-        var enabled   = config.GetValueOrDefault("CloudBrain:Enabled", "true") == "true";
-        var hwid      = new HwidService().ComputeHwid();
+        var config = ReadLocalConfig();
+        var baseUrl = config.GetValueOrDefault("CloudBrain:BaseUrl", "https://dwnbridge.org");
+        var enabled = config.GetValueOrDefault("CloudBrain:Enabled", "true") == "true";
+        var hwid = new HwidService().ComputeHwid();
 
         if (enabled)
         {
@@ -147,6 +179,71 @@ public partial class App : Application
         }
     }
 
+    /// <summary>
+    /// Tenta di inviare un crash report automatico al server AIBridge.
+    /// Completamente asincrono e fire-and-forget: non blocca il thread UI e non solleva eccezioni.
+    /// Verificato il flag SendCrashReports prima di inviare qualsiasi dato.
+    /// Funziona anche quando CloudServiceLocator.Client è null (crash prima del login).
+    /// </summary>
+    private static async Task TrySendCrashReportAsync(Exception ex)
+    {
+        try
+        {
+            // Verifica il consenso dell'utente
+            var settings = new Services.SettingsService().Load();
+            if (!settings.SendCrashReports) return;
+
+            // Legge la URL del server dalla configurazione locale
+            var config = ReadLocalConfig();
+            var baseUrl = config.GetValueOrDefault("CloudBrain:BaseUrl", "https://dwnbridge.org");
+
+            // Determina la fase del crash in base all'uptime
+            var uptimeSeconds = (int)(DateTimeOffset.UtcNow - _appStartedAt).TotalSeconds;
+            var crashPhase = uptimeSeconds < 10 ? "Startup" : "Runtime";
+
+            // Calcola lo stack trace hash (SHA-256 dei primi 500 caratteri)
+            var stackTrace = ex.ToString();
+            var hashInput  = stackTrace[..Math.Min(500, stackTrace.Length)];
+            var hashBytes  = SHA256.HashData(Encoding.UTF8.GetBytes(hashInput));
+            var hash       = Convert.ToHexString(hashBytes).ToLowerInvariant();
+
+            // Raccoglie HWID e info OS
+            var hwid   = new HwidService().ComputeHwid();
+            var osInfo = $"{Environment.OSVersion} {(Environment.Is64BitOperatingSystem ? "x64" : "x86")}";
+            var version = System.Reflection.Assembly.GetExecutingAssembly()
+                              .GetName().Version?.ToString() ?? "unknown";
+
+            var payload = new AIBridge.Shared.Models.CrashReportRequest
+            {
+                Hwid             = hwid,
+                ClientVersion    = version,
+                OsInfo           = osInfo,
+                CrashPhase       = crashPhase,
+                AppUptimeSeconds = uptimeSeconds,
+                ExceptionType    = ex.GetType().FullName,
+                ExceptionMessage = ex.Message[..Math.Min(1000, ex.Message.Length)],
+                StackTrace       = stackTrace,
+                StackTraceHash   = hash
+            };
+
+            using var http = new HttpClient { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(10) };
+
+            // Aggiunge JWT se disponibile — consente al server di associare UserId al crash
+            var jwtToken = CloudServiceLocator.Client?.GetCurrentToken();
+            if (!string.IsNullOrEmpty(jwtToken))
+                http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+
+            var json    = System.Text.Json.JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            await http.PostAsync("/api/v1/telemetry/crash", content);
+        }
+        catch
+        {
+            // Silenzioso: un crash report non può causare un secondo errore
+        }
+    }
+
     /// <summary>Legge appsettings.json piatto in un dizionario semplice.</summary>
     private static Dictionary<string, string> ReadLocalConfig()
     {
@@ -156,7 +253,7 @@ public partial class App : Application
             var path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
             if (!File.Exists(path)) return result;
 
-            using var doc  = JsonDocument.Parse(File.ReadAllText(path));
+            using var doc = JsonDocument.Parse(File.ReadAllText(path));
             FlattenJson(doc.RootElement, "", result);
         }
         catch { }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace AIBridge.Models
@@ -12,6 +11,10 @@ namespace AIBridge.Models
 
         [JsonPropertyName("files")]
         public List<FileEditCommand> Files { get; set; } = new();
+
+        public bool IsTruncated { get; set; }
+        public string? TruncatedFilePath { get; set; }
+        public string? TruncatedLastLines { get; set; }
     }
 
     public class FileEditCommand

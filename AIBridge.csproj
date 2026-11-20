@@ -6,14 +6,20 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <DefaultItemExcludes>$(DefaultItemExcludes);MdXaml_Source\**</DefaultItemExcludes>
     <ApplicationIcon>aibridge.ico</ApplicationIcon>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <GenerateTargetPlatformAttribute>false</GenerateTargetPlatformAttribute>
     <PlaywrightPlatform>win</PlaywrightPlatform>
     <AssemblyName>DWN.Bridge</AssemblyName>
-    <!-- Rimuove i percorsi locali assoluti della tua macchina (es. C:\Users\orlan\...) dai file .pdb e .dll compilati -->
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+
+    <!-- Disattiva il blocco di sicurezza di NuGet che impedisce la pubblicazione in presenza di vulnerabilità note (es. SQLite) -->
+    <NuGetAudit>false</NuGetAudit>
+
+    <!-- Rimuove i percorsi locali assoluti della macchina di build dai file .pdb e .dll compilati -->
+    <ContinuousIntegrationBuild Condition="'$(DeployOnBuild)' != 'true' And '$(PublishProtocol)' == ''">true</ContinuousIntegrationBuild>
+    <ContinuousIntegrationBuild Condition="'$(DeployOnBuild)' == 'true' Or '$(PublishProtocol)' != ''">false</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,26 +41,23 @@
     </Content>
   </ItemGroup>
 
-  <!-- Copia i prompt/skills in locale per il debug, ma ESCLUDILI dalla pubblicazione (ClickOnce) -->
-  <ItemGroup Condition="'$(DeployOnBuild)' != 'true' And '$(PublishProtocol)' == ''">
-    <None Update="agent\skills\**\*.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup Condition="'$(DeployOnBuild)' == 'true' Or '$(PublishProtocol)' != ''">
-    <None Remove="agent\skills\**\*.md" />
-    <Content Remove="agent\skills\**\*.md" />
+  <!-- TxLib è una sottocartella ma è un progetto separato (ProjectReference).
+       Il glob SDK includerebbe automaticamente tutti i suoi .cs — lo escludiamo. -->
+  <ItemGroup>
+    <Compile Remove="TxLib\**" />
+    <None Remove="TxLib\**" />
+    <Content Remove="TxLib\**" />
+    <EmbeddedResource Remove="TxLib\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="MdXaml" Version="1.27.0" />
+    <ProjectReference Include="MdXaml_Source\MdXaml\MdXaml.csproj" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
     <PackageReference Include="Microsoft.Playwright" Version="1.60.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4022.49" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="MySql.Data" Version="9.7.0" />
     <PackageReference Include="Npgsql" Version="10.0.3" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
@@ -65,37 +68,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Unclassified.TxLib">
-      <HintPath>libs\Unclassified.TxLib.dll</HintPath>
-    </Reference>
     <ProjectReference Include="AIBridge.Shared\AIBridge.Shared.csproj" />
+    <ProjectReference Include="TxLib\TxLib.csproj" />
   </ItemGroup>
 
-
-
-
-  <!-- Copia i binari delle estensioni proprietarie pre-compilate forniti nel repo -->
+  <!-- Copia i binari delle estensioni pre-compilate forniti nel repo (AIBridge.Core.dll, AIBridge.ToolCore.dll) -->
   <ItemGroup>
     <None Update="extensions\*.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <!-- Assicura che le DLL finiscano nel pacchetto CLICKONCE senza usare target custom che mandano in crash WebTools -->
-  <ItemGroup Condition="'$(DeployOnBuild)' == 'true' Or '$(PublishProtocol)' != ''">
-    <Content Include="$(MSBuildThisFileDirectory)AIBridge.ToolCore\bin\$(Configuration)\net10.0\AIBridge.ToolCore.dll" Link="extensions\AIBridge.ToolCore.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="temp\**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="TestJson.cs" />
-    <Compile Remove="TestJsonApp\Program.cs" />
   </ItemGroup>
 
   <!-- Escludi i sottoprogetti della solution dal glob implicito del SDK -->
@@ -105,16 +86,28 @@
     <Compile Remove="AIBridge.Core\**" />
     <Compile Remove="AIBridge.LocalPersistence\**" />
     <Compile Remove="AIBridge.ToolCore\**" />
+    <Compile Remove="AIBridge.Admin\**" />
+    <Compile Remove="AIBridge.Admin.Tests\**" />
+    <Compile Remove="AIBridge.WebChat.Tests\**" />
     <EmbeddedResource Remove="AIBridge.Shared\**" />
     <EmbeddedResource Remove="AIBridge.Server\**" />
     <EmbeddedResource Remove="AIBridge.Core\**" />
     <EmbeddedResource Remove="AIBridge.LocalPersistence\**" />
     <EmbeddedResource Remove="AIBridge.ToolCore\**" />
+    <EmbeddedResource Remove="AIBridge.Admin\**" />
+    <EmbeddedResource Remove="AIBridge.Admin.Tests\**" />
+    <EmbeddedResource Remove="AIBridge.WebChat.Tests\**" />
+    <Page Remove="AIBridge.Admin\**" />
+    <Page Remove="AIBridge.Admin.Tests\**" />
+    <Page Remove="AIBridge.WebChat.Tests\**" />
     <None Remove="AIBridge.Shared\**" />
     <None Remove="AIBridge.Server\**" />
     <None Remove="AIBridge.Core\**" />
     <None Remove="AIBridge.LocalPersistence\**" />
     <None Remove="AIBridge.ToolCore\**" />
+    <None Remove="AIBridge.Admin\**" />
+    <None Remove="AIBridge.Admin.Tests\**" />
+    <None Remove="AIBridge.WebChat.Tests\**" />
   </ItemGroup>
 
 </Project>

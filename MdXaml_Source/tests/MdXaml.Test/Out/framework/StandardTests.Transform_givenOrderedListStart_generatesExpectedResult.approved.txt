@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-16"?>
+<FlowDocument Style="{x:Null}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Paragraph>List starting from 2 (Markdown allows any start number for ordered lists):</Paragraph>
+  <List MarkerStyle="Decimal" StartIndex="2">
+    <ListItem>
+      <Paragraph>Second</Paragraph>
+    </ListItem>
+    <ListItem>
+      <Paragraph>Third</Paragraph>
+    </ListItem>
+    <ListItem>
+      <Paragraph>Fourth</Paragraph>
+    </ListItem>
+  </List>
+</FlowDocument>

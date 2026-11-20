@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
+    <PackageId>MdXaml.Html</PackageId>
+    <Version>$(PackageVersion)</Version>
+    <Authors>whistyun</Authors>
+    <Company />
+    <Description>cheap html processor for MdXalml</Description>
+    <Copyright>© Simon Baynes 2013; whistyun 2022</Copyright>
+    <PackageProjectUrl>https://github.com/whistyun/MdXaml</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>MdXaml.Html.md</PackageReadmeFile>
+    <PackageTags>Markdown WPF Xaml FlowDocument</PackageTags>
+    <Configurations>Debug;Release</Configurations>
+
+    <UseWPF>true</UseWPF>
+    <LangVersion>9</LangVersion>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\pack_readme\MdXaml.Html.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <None Remove="Core\Parsers\TypicalBlockParser.tsv" />
+	  <None Remove="Core\Parsers\TypicalInlineParser.tsv" />
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Include="Core\Parsers\TypicalBlockParser.tsv" />
+	  <EmbeddedResource Include="Core\Parsers\TypicalInlineParser.tsv" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MdXaml\MdXaml.csproj" />
+		<ProjectReference Include="..\MdXaml.Plugins\MdXaml.Plugins.csproj" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
+  </ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+		<PackageReference Include="AvalonEdit" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' != 'net45' ">
+		<PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+	</ItemGroup>
+
+</Project>

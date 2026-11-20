@@ -1,6 +1,5 @@
-using System;
-using System.Windows;
 using Microsoft.Web.WebView2.Core;
+using System.Windows;
 
 namespace AIBridge.Dialogs
 {
@@ -23,7 +22,7 @@ namespace AIBridge.Dialogs
             try
             {
                 await webView.EnsureCoreWebView2Async();
-                
+
                 // Pulisce i cookie per consentire il login di un utente diverso se necessario
                 webView.CoreWebView2.CookieManager.DeleteAllCookies();
 
@@ -43,10 +42,10 @@ namespace AIBridge.Dialogs
             if (e.Uri.StartsWith("https://aibridge.org/callback", StringComparison.OrdinalIgnoreCase))
             {
                 e.Cancel = true;
-                
+
                 var uri = new Uri(e.Uri);
                 var query = uri.Query.TrimStart('?').Split('&');
-                
+
                 foreach (var param in query)
                 {
                     var parts = param.Split('=');
@@ -56,7 +55,7 @@ namespace AIBridge.Dialogs
                         if (parts[0] == "state") State = Uri.UnescapeDataString(parts[1]);
                     }
                 }
-                
+
                 DialogResult = true;
                 Close();
             }

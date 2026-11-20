@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace AIBridge.AgentCore
 {
@@ -104,11 +101,13 @@ namespace AIBridge.AgentCore
             (new Regex(@"\biex\b|\bInvoke-Expression\b", RegexOptions.IgnoreCase),
              "Invoke-Expression (IEX) esegue stringhe arbitrarie come codice PowerShell. Rischio injection critico."),
 
-            (new Regex(@"\bpowershell\b.+(-enc(odedcommand)?|-e\s+[A-Za-z0-9+/=]{20,})", RegexOptions.IgnoreCase),
-             "PowerShell con comandi codificati in Base64 è una tecnica di offuscamento malware. Sempre bloccato."),
+            // ── POWERSHELL ENCODED COMMAND (Anti-Obfuscation) ─────────────
+            (new Regex(@"\bpowershell(\.exe)?\b\s+.*\b(-EncodedCommand|-enc)\s+[A-Za-z0-9+/]{40,}={0,2}(\s|$)", RegexOptions.IgnoreCase),
+             "PowerShell con comandi codificati in Base64 (-EncodedCommand) è una tecnica di offuscamento malware. Sempre bloccato."),
 
-            (new Regex(@"\bpowershell\b.+(-nop|-noninteractive|-w\s+hidden|-windowstyle\s+hidden)", RegexOptions.IgnoreCase),
-             "PowerShell in modalità nascosta/non-interattiva è tipico di script malevoli. Sempre bloccato."),
+            // ── POWERSHELL HIDDEN / BYPASS SILENZIOSO ─────────────────────
+            (new Regex(@"\bpowershell(\.exe)?\b.+(-w\s+hidden|-windowstyle\s+hidden)", RegexOptions.IgnoreCase),
+             "PowerShell in modalità finestra nascosta è tipico di script malevoli. Sempre bloccato."),
 
             // ── POLICY DI ESECUZIONE POWERSHELL ───────────────────────────
             (new Regex(@"\bSet-ExecutionPolicy\b.+(Unrestricted|Bypass|Undefined)", RegexOptions.IgnoreCase),
@@ -151,10 +150,30 @@ namespace AIBridge.AgentCore
         public static async Task<string> ProcessToolsAsync(string geminiResponse, string workspaceRoot, IEnumerable<AIBridge.Shared.Models.ToolDefinition>? agentTools = null)
         {
             var match = Regex.Match(geminiResponse, @"```tool\s*([\s\S]*?)\s*```", RegexOptions.IgnoreCase);
-            if (!match.Success)
-                return string.Empty;
+            string json = "";
+            if (match.Success)
+            {
+                json = match.Groups[1].Value;
+            }
+            else
+            {
+                var jsonBlockMatch = Regex.Match(geminiResponse, @"```json\s*(\{[\s\S]*?\""action\""[\s\S]*?\})\s*```", RegexOptions.IgnoreCase);
+                if (jsonBlockMatch.Success)
+                {
+                    json = jsonBlockMatch.Groups[1].Value;
+                }
+                else
+                {
+                    var rawJsonMatch = Regex.Match(geminiResponse, @"(\{[\s\S]*?\""action\""[\s\S]*?\})", RegexOptions.IgnoreCase);
+                    if (rawJsonMatch.Success)
+                    {
+                        json = rawJsonMatch.Groups[1].Value;
+                    }
+                }
+            }
 
-            string json = match.Groups[1].Value;
+            if (string.IsNullOrEmpty(json))
+                return string.Empty;
 
             ToolRequest? toolRequest = null;
             try
@@ -206,13 +225,13 @@ namespace AIBridge.AgentCore
             else
             {
                 string cmd = toolDef.CommandTemplate ?? "";
-                
+
                 // For generic RUN_COMMAND dove il parametro è fisso su "command"
                 if (actionName == "RUN_COMMAND")
                 {
                     if (string.IsNullOrWhiteSpace(toolRequest.Command))
                         return "Error: The 'command' field is missing or empty. Tool request failed due to truncated JSON.";
-                    
+
                     cmd = cmd.Replace("{0}", toolRequest.Command);
                 }
                 else
@@ -224,11 +243,11 @@ namespace AIBridge.AgentCore
                         // Se era stato usato il json sanificato, riparsiamo quello, altrimenti json originale
                         string jsonToParse = json;
                         try { System.Text.Json.JsonDocument.Parse(jsonToParse); } catch { jsonToParse = SanitizeJson(json); }
-                        
+
                         using var doc = System.Text.Json.JsonDocument.Parse(jsonToParse);
                         foreach (var prop in doc.RootElement.EnumerateObject())
                         {
-                            if (!prop.Name.Equals("action", StringComparison.OrdinalIgnoreCase) && 
+                            if (!prop.Name.Equals("action", StringComparison.OrdinalIgnoreCase) &&
                                 !prop.Name.Equals("work_dir", StringComparison.OrdinalIgnoreCase))
                             {
                                 string val = prop.Value.ToString() ?? "";
@@ -237,7 +256,7 @@ namespace AIBridge.AgentCore
                                 cmd = cmd.Replace($"{{{prop.Name}}}", val, StringComparison.OrdinalIgnoreCase);
                             }
                         }
-                        
+
                         // Supporta placeholder posizionali, es. {0}, {1} in base all'ordine di apparizione
                         for (int i = 0; i < args.Count; i++)
                         {
@@ -247,7 +266,7 @@ namespace AIBridge.AgentCore
                     catch
                     {
                         // Fallback ai campi noti se il parsing generico fallisce
-                        if (!string.IsNullOrEmpty(toolRequest.Command)) cmd = cmd.Replace("{0}", toolRequest.Command); 
+                        if (!string.IsNullOrEmpty(toolRequest.Command)) cmd = cmd.Replace("{0}", toolRequest.Command);
                         else if (!string.IsNullOrEmpty(toolRequest.Path)) cmd = cmd.Replace("{0}", toolRequest.Path);
                         if (!string.IsNullOrEmpty(toolRequest.Query)) cmd = cmd.Replace("{1}", toolRequest.Query);
                     }
@@ -392,11 +411,65 @@ namespace AIBridge.AgentCore
             return null;
         }
 
+        private static void ShowPathViolationAlert(string path, string workspaceRoot)
+        {
+            try
+            {
+                string msg = Unclassified.TxLib.Tx.T(
+                    "SECURITY WARNING: An agent attempted to access a path outside the workspace sandbox.\n\n" +
+                    "Attempted path: {0}\n" +
+                    "Workspace root: {1}\n\n" +
+                    "This action has been blocked for security reasons.",
+                    path, workspaceRoot);
+
+                string title = Unclassified.TxLib.Tx.T("Security Blocked Action");
+
+                AIBridge.Dialogs.CustomMessageBox.Show(msg, title, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            }
+            catch { }
+        }
+
+        private static bool IsPathInsideWorkspace(string path, string workspaceRoot, out string fullPath)
+        {
+            fullPath = string.Empty;
+            if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(workspaceRoot))
+                return false;
+
+            try
+            {
+                string wsNorm = System.IO.Path.GetFullPath(workspaceRoot);
+                if (!wsNorm.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
+                {
+                    wsNorm += System.IO.Path.DirectorySeparatorChar;
+                }
+
+                string candidate = System.IO.Path.IsPathRooted(path) ? path : System.IO.Path.Combine(workspaceRoot, path);
+                string candidateNorm = System.IO.Path.GetFullPath(candidate);
+
+                if (candidateNorm.StartsWith(wsNorm, StringComparison.OrdinalIgnoreCase))
+                {
+                    fullPath = candidateNorm;
+                    return true;
+                }
+                
+                if (candidateNorm.Equals(wsNorm.TrimEnd(System.IO.Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
+                {
+                    fullPath = candidateNorm;
+                    return true;
+                }
+            }
+            catch { }
+
+            ShowPathViolationAlert(path, workspaceRoot);
+            return false;
+        }
+
         private static async Task<string> ExecuteReadFileAsync(string path, string workspaceRoot)
         {
             if (string.IsNullOrWhiteSpace(path)) return Unclassified.TxLib.Tx.T("Error: path is required.");
 
-            string fullPath = System.IO.Path.IsPathRooted(path) ? path : System.IO.Path.Combine(workspaceRoot, path);
+            if (!IsPathInsideWorkspace(path, workspaceRoot, out string fullPath))
+                return $"Error: Access denied. Path '{path}' is outside the workspace sandbox.";
 
             if (!System.IO.File.Exists(fullPath))
                 return Unclassified.TxLib.Tx.T("Error: File '{0}' not found.", fullPath);
@@ -409,8 +482,16 @@ namespace AIBridge.AgentCore
                     return Unclassified.TxLib.Tx.T("Error: File too large ({0} lines). Read specific portions or use another tool.", lines.Length.ToString());
                 }
 
+                var nature = FileNatureClassifier.Classify(fullPath);
+
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine($"=== FILE: {path} ({lines.Length} righe) ===");
+                if (nature == FileNature.UserDataExport && lines.Length > 100)
+                {
+                    sb.AppendLine("[APP PRIVACY CLASSIFIER]: Questo file è stato identificato dall'applicazione come EXPORT DATI PERSONALI UTENTE.");
+                    sb.AppendLine("Per tutelare la privacy dell'utente, NON caricare il contenuto completo nel contesto LLM.");
+                    sb.AppendLine("Usa WRITE_FILE + RUN_COMMAND per creare ed eseguire uno script Python/PowerShell che elabori o ordini questo file direttamente su disco.");
+                }
                 sb.AppendLine(string.Join(Environment.NewLine, lines));
                 sb.AppendLine($"=== FINE FILE ===");
                 return sb.ToString();
@@ -424,7 +505,8 @@ namespace AIBridge.AgentCore
         private static string ExecuteListDir(string path, string workspaceRoot)
         {
             string targetDir = string.IsNullOrWhiteSpace(path) || path == "." ? workspaceRoot : path;
-            string fullPath = System.IO.Path.IsPathRooted(targetDir) ? targetDir : System.IO.Path.Combine(workspaceRoot, targetDir);
+            if (!IsPathInsideWorkspace(targetDir, workspaceRoot, out string fullPath))
+                return $"Error: Access denied. Path '{path}' is outside the workspace sandbox.";
 
             if (!System.IO.Directory.Exists(fullPath))
                 return Unclassified.TxLib.Tx.T("Error: Directory '{0}' not found.", fullPath);
@@ -459,7 +541,8 @@ namespace AIBridge.AgentCore
             if (string.IsNullOrWhiteSpace(query)) return Unclassified.TxLib.Tx.T("Error: query is required.");
 
             string targetDir = string.IsNullOrWhiteSpace(path) || path == "." ? workspaceRoot : path;
-            string fullPath = System.IO.Path.IsPathRooted(targetDir) ? targetDir : System.IO.Path.Combine(workspaceRoot, targetDir);
+            if (!IsPathInsideWorkspace(targetDir, workspaceRoot, out string fullPath))
+                return $"Error: Access denied. Path '{path}' is outside the workspace sandbox.";
 
             if (!System.IO.Directory.Exists(fullPath))
                 return Unclassified.TxLib.Tx.T("Error: Directory '{0}' not found.", fullPath);
@@ -579,7 +662,11 @@ namespace AIBridge.AgentCore
             // --- ESECUZIONE SANDBOXATA ---
             try
             {
-                var processInfo = new System.Diagnostics.ProcessStartInfo("cmd.exe", $"/c {command}")
+                string psCommand = NormalizeCommandForPowerShell5(command);
+
+                // PowerShell gestisce correttamente caratteri HTML (<, >) nelle stringhe
+                // a differenza di cmd.exe che li interpreta come operatori di redirezione.
+                var processInfo = new System.Diagnostics.ProcessStartInfo("powershell.exe")
                 {
                     WorkingDirectory = execDir,
                     RedirectStandardOutput = true,
@@ -587,21 +674,27 @@ namespace AIBridge.AgentCore
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
+                processInfo.ArgumentList.Add("-NoProfile");
+                processInfo.ArgumentList.Add("-NonInteractive");
+                processInfo.ArgumentList.Add("-ExecutionPolicy");
+                processInfo.ArgumentList.Add("Bypass");
+                processInfo.ArgumentList.Add("-Command");
+                processInfo.ArgumentList.Add(psCommand);
 
                 using var process = new System.Diagnostics.Process { StartInfo = processInfo };
-                
+
                 var outputBuilder = new System.Text.StringBuilder();
                 var errorBuilder = new System.Text.StringBuilder();
-                
-                process.OutputDataReceived += (s, e) => { if (e.Data != null) lock(outputBuilder) outputBuilder.AppendLine(e.Data); };
-                process.ErrorDataReceived += (s, e) => { if (e.Data != null) lock(errorBuilder) errorBuilder.AppendLine(e.Data); };
+
+                process.OutputDataReceived += (s, e) => { if (e.Data != null) lock (outputBuilder) outputBuilder.AppendLine(e.Data); };
+                process.ErrorDataReceived += (s, e) => { if (e.Data != null) lock (errorBuilder) errorBuilder.AppendLine(e.Data); };
 
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
 
                 bool exited = process.WaitForExit(15000); // Timeout 15 secondi come descritto nelle regole
-                
+
                 if (exited)
                 {
                     // MSDN: To ensure that asynchronous event handling has been completed, 
@@ -610,34 +703,42 @@ namespace AIBridge.AgentCore
                 }
 
                 string output, error;
-                lock(outputBuilder) output = outputBuilder.ToString();
-                lock(errorBuilder) error = errorBuilder.ToString();
+                lock (outputBuilder) output = outputBuilder.ToString();
+                lock (errorBuilder) error = errorBuilder.ToString();
 
                 if (exited)
                 {
                     var sb = new System.Text.StringBuilder();
-                    sb.AppendLine($"[Executed Command]: {command}");
+                    sb.AppendLine($"[Executed Command]: powershell.exe -Command {command}");
                     sb.AppendLine($"[Directory]: {execDir}");
                     sb.AppendLine($"[Exit Code]: {process.ExitCode}");
-                    if (!string.IsNullOrWhiteSpace(output)) sb.AppendLine($"[Output]:\n{output.Trim()}");
-                    if (!string.IsNullOrWhiteSpace(error))  sb.AppendLine($"[Error]:\n{error.Trim()}");
+                    sb.AppendLine(string.IsNullOrWhiteSpace(output)
+                        ? "[Output]: (nessun output prodotto)"
+                        : $"[Output]:\n{output.Trim()}");
+                    sb.AppendLine(string.IsNullOrWhiteSpace(error)
+                        ? "[Error]: (nessun errore)"
+                        : $"[Error]:\n{error.Trim()}");
 
                     return sb.ToString().Trim();
                 }
                 else
                 {
                     // Il comando è andato in timeout (probabilmente una GUI o un server in ascolto)
-                    // Terminiamo solo il wrapper (cmd.exe) lasciando il processo figlio (la GUI) in esecuzione
+                    // Terminiamo solo il wrapper (powershell.exe) lasciando il processo figlio (la GUI) in esecuzione
                     // così l'utente può interagire con l'app generata.
                     try { process.Kill(); } catch { }
-                    
+
                     var sb = new System.Text.StringBuilder();
                     sb.AppendLine($"[Command TIMEOUT after 15 seconds]: {command}");
                     sb.AppendLine($"[Directory]: {execDir}");
                     sb.AppendLine($"[Exit Code]: N/A (Timeout)");
-                    if (!string.IsNullOrWhiteSpace(output)) sb.AppendLine($"[Partial Output]:\n{output.Trim()}");
-                    if (!string.IsNullOrWhiteSpace(error))  sb.AppendLine($"[Partial Error]:\n{error.Trim()}");
-                    
+                    sb.AppendLine(string.IsNullOrWhiteSpace(output)
+                        ? "[Partial Output]: (nessun output prima del timeout)"
+                        : $"[Partial Output]:\n{output.Trim()}");
+                    sb.AppendLine(string.IsNullOrWhiteSpace(error)
+                        ? "[Partial Error]: (nessun errore prima del timeout)"
+                        : $"[Partial Error]:\n{error.Trim()}");
+
                     return sb.ToString().Trim();
                 }
             }
@@ -647,12 +748,96 @@ namespace AIBridge.AgentCore
             }
         }
 
+        /// <summary>
+        /// Normalizza un comando generato dall'LLM per l'esecuzione su Windows PowerShell 5.1:
+        /// 1. Rimuove il prefisso ridondante <c>cmd.exe /c </c> (iniettato da CommandTemplate) che
+        ///    romperebbe il parsing di operatori concatenati non quotati in PowerShell.
+        /// 2. Converte la catena <c>cmd1 &amp;&amp; cmd2 &amp;&amp; cmd3</c> (non supportata in PowerShell 5.1)
+        ///    nel costrutto equivalente <c>cmd1; if ($?) { cmd2; if ($?) { cmd3 } }</c>.
+        /// </summary>
+        public static string NormalizeCommandForPowerShell5(string command)
+        {
+            if (string.IsNullOrWhiteSpace(command))
+                return command;
+
+            string trimmed = command.Trim();
+
+            // Rimuove prefisso "cmd.exe /c " o "cmd /c " se presente all'inizio
+            if (trimmed.StartsWith("cmd.exe /c ", StringComparison.OrdinalIgnoreCase))
+                trimmed = trimmed.Substring("cmd.exe /c ".Length).Trim();
+            else if (trimmed.StartsWith("cmd /c ", StringComparison.OrdinalIgnoreCase))
+                trimmed = trimmed.Substring("cmd /c ".Length).Trim();
+
+            if (!trimmed.Contains("&&", StringComparison.Ordinal))
+                return trimmed;
+
+            // Spezza su && solo quando si trova fuori da virgolette singole o doppie
+            var parts = SplitOnUnquotedAndAnd(trimmed);
+            if (parts.Count <= 1)
+                return trimmed;
+
+            // Costruisce da destra a sinistra: s1; if ($?) { s2; if ($?) { s3 } }
+            string acc = parts[parts.Count - 1];
+            for (int i = parts.Count - 2; i >= 0; i--)
+            {
+                acc = $"{parts[i]}; if ($?) {{ {acc} }}";
+            }
+            return acc;
+        }
+
+        private static List<string> SplitOnUnquotedAndAnd(string input)
+        {
+            var segments = new List<string>();
+            var current = new System.Text.StringBuilder();
+            bool inSingle = false;
+            bool inDouble = false;
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                char c = input[i];
+                if (c == '\'' && !inDouble)
+                {
+                    inSingle = !inSingle;
+                    current.Append(c);
+                }
+                else if (c == '"' && !inSingle && (i == 0 || input[i - 1] != '\\'))
+                {
+                    inDouble = !inDouble;
+                    current.Append(c);
+                }
+                else if (!inSingle && !inDouble && c == '&' && i + 1 < input.Length && input[i + 1] == '&')
+                {
+                    string seg = current.ToString().Trim();
+                    if (!string.IsNullOrEmpty(seg))
+                        segments.Add(seg);
+                    current.Clear();
+                    i++; // salta il secondo '&'
+                }
+                else
+                {
+                    current.Append(c);
+                }
+            }
+
+            string tail = current.ToString().Trim();
+            if (!string.IsNullOrEmpty(tail))
+                segments.Add(tail);
+
+            return segments;
+        }
+
         private static async Task<string> ExecuteWriteFileAsync(string path, string content, string workspaceRoot)
         {
             if (string.IsNullOrWhiteSpace(path)) return Unclassified.TxLib.Tx.T("Error: path is required.");
-            if (content == null) return Unclassified.TxLib.Tx.T("Error: content is required.");
+            if (content == null) return $"Error: content is required. The 'content' field was null after JSON parsing (path was: '{path}'). " +
+                "This usually means the JSON was malformed, truncated, or the 'content' field was missing from the tool call. " +
+                "Please retry WRITE_FILE making sure the 'content' field is present and properly escaped.";
 
-            string fullPath = System.IO.Path.IsPathRooted(path) ? path : System.IO.Path.Combine(workspaceRoot, path);
+            if (!IsPathInsideWorkspace(path, workspaceRoot, out string fullPath))
+                return $"Error: Access denied. Path '{path}' is outside the workspace sandbox.";
+
+            if (!MarkdownCodeExtractor.ValidateFileContent(path, content, out string? validationError))
+                return $"Error: File '{path}' was NOT written because validation failed: {validationError}";
 
             try
             {
@@ -670,7 +855,8 @@ namespace AIBridge.AgentCore
                         System.IO.Directory.CreateDirectory(dir);
                 }
 
-                await System.IO.File.WriteAllTextAsync(fullPath, content, System.Text.Encoding.UTF8);
+                var utf8NoBom = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+                await System.IO.File.WriteAllTextAsync(fullPath, content, utf8NoBom);
                 return Unclassified.TxLib.Tx.T("OK: File '{0}' successfully written ({1} characters).", path, content.Length.ToString());
             }
             catch (Exception ex)
@@ -685,7 +871,8 @@ namespace AIBridge.AgentCore
             if (string.IsNullOrEmpty(oldContent)) return Unclassified.TxLib.Tx.T("Error: old_content is required.");
             if (newContent == null) return Unclassified.TxLib.Tx.T("Error: new_content is required.");
 
-            string fullPath = System.IO.Path.IsPathRooted(path) ? path : System.IO.Path.Combine(workspaceRoot, path);
+            if (!IsPathInsideWorkspace(path, workspaceRoot, out string fullPath))
+                return $"Error: Access denied. Path '{path}' is outside the workspace sandbox.";
 
             if (!System.IO.File.Exists(fullPath))
                 return Unclassified.TxLib.Tx.T("Error: File '{0}' not found.", fullPath);
@@ -700,12 +887,16 @@ namespace AIBridge.AgentCore
                 if (occurrences > 1)
                     return $"Warning: Il testo 'old_content' è stato trovato {occurrences} volte nel file '{path}'. Fornisci un contesto più ampio per renderlo univoco.";
 
+                string updatedText = originalText.Replace(oldContent, newContent, StringComparison.Ordinal);
+                if (!MarkdownCodeExtractor.ValidateFileContent(path, updatedText, out string? validationError))
+                    return $"Error: Replacement in '{path}' was NOT applied because resulting file validation failed: {validationError}";
+
                 // Backup automatico
                 string backupPath = fullPath + ".bak";
                 System.IO.File.Copy(fullPath, backupPath, overwrite: true);
 
-                string updatedText = originalText.Replace(oldContent, newContent, StringComparison.Ordinal);
-                await System.IO.File.WriteAllTextAsync(fullPath, updatedText, System.Text.Encoding.UTF8);
+                var utf8NoBom = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+                await System.IO.File.WriteAllTextAsync(fullPath, updatedText, utf8NoBom);
 
                 return $"OK: Sostituzione eseguita in '{path}'. Backup salvato in '{path}.bak'.";
             }

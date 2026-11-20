@@ -8,6 +8,17 @@ namespace AIBridge.Dialogs
         public AboutDialog()
         {
             InitializeComponent();
+            VersionTextBlock.Text = GetAppVersion();
+        }
+
+        private string GetAppVersion()
+        {
+            if (System.Environment.GetEnvironmentVariable("ClickOnce_IsNetworkDeployed")?.ToLower() == "true")
+            {
+                return "v" + (System.Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion") ?? "1.0.0.0");
+            }
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+            return version == "0.0.0.0" ? "Local Debug" : "v" + version;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

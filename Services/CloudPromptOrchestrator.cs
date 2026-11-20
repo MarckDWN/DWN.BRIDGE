@@ -1,8 +1,6 @@
-using System;
+using AIBridge.Shared.Interfaces;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
-using AIBridge.Shared.Interfaces;
 
 namespace AIBridge.Services
 {
@@ -26,7 +24,7 @@ namespace AIBridge.Services
                 // Caricamento riflessivo (Plugin mode) dalla cartella extensions
                 string extensionsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "extensions");
                 string dllPath = System.IO.Path.Combine(extensionsPath, "AIBridge.Core.dll");
-                
+
                 if (System.IO.File.Exists(dllPath))
                 {
                     var assembly = System.Reflection.Assembly.LoadFrom(dllPath);
@@ -48,12 +46,16 @@ namespace AIBridge.Services
         {
             try
             {
+                string lang = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                if (string.IsNullOrEmpty(lang)) lang = "en-US";
+
                 var req = new
                 {
                     AgentType = agentType,
                     UserInput = userInput,
                     Schema = schema,
-                    Skill = skill
+                    Skill = skill,
+                    Language = lang
                 };
 
                 var res = await _http.PostAsJsonAsync("api/orchestrator/build-prompt", req);

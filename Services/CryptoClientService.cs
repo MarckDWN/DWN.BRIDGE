@@ -1,4 +1,3 @@
-using AIBridge.Shared.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text;
@@ -70,10 +69,10 @@ public sealed class CryptoClientService : ICryptoClientService
     }
     public T? Decrypt<T>(string ivBase64, string tagBase64, string ciphertextBase64, byte[] sessionKey)
     {
-        var iv         = Convert.FromBase64String(ivBase64);
-        var tag        = Convert.FromBase64String(tagBase64);
+        var iv = Convert.FromBase64String(ivBase64);
+        var tag = Convert.FromBase64String(tagBase64);
         var ciphertext = Convert.FromBase64String(ciphertextBase64);
-        var plaintext  = new byte[ciphertext.Length];
+        var plaintext = new byte[ciphertext.Length];
 
         using var aes = new AesGcm(sessionKey, AesGcm.TagByteSizes.MaxSize);
         aes.Decrypt(iv, ciphertext, tag, plaintext);

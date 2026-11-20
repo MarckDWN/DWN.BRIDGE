@@ -1,10 +1,10 @@
+using AIBridge.Shared.Models;
+using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using AIBridge.Shared.Models;
-using Microsoft.Extensions.Logging;
 
 namespace AIBridge.Services;
 
@@ -103,15 +103,33 @@ public sealed class CloudBrainClient : ICloudBrainClient
         }
     }
 
+    public string Language
+    {
+        get
+        {
+            if (_jwtToken is null) return "en-US";
+            try
+            {
+                var jwt = new JwtSecurityTokenHandler().ReadJwtToken(_jwtToken);
+                return jwt.Claims.FirstOrDefault(c => c.Type == "language")?.Value ?? "en-US";
+            }
+            catch { return "en-US"; }
+        }
+    }
+
+    /// <summary>Restituisce il JWT grezzo in-memory. Usato esclusivamente da TrySendCrashReportAsync.</summary>
+    public string? GetCurrentToken() => _jwtToken;
+
     public CloudBrainClient(HttpClient http, ILogger<CloudBrainClient> logger)
     {
-        _http   = http;
+        _http = http;
         _logger = logger;
 
         string origin = "LocalBuild";
         if (Environment.GetEnvironmentVariable("ClickOnce_IsNetworkDeployed")?.ToLower() == "true")
         {
-            origin = $"ClickOnce: {Environment.GetEnvironmentVariable("ClickOnce_ActivationUri") ?? "Unknown"}";
+            string version = Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion") ?? "1.0.0.0";
+            origin = $"ClickOnce: v{version}";
         }
         else if (AppDomain.CurrentDomain.BaseDirectory.Contains(@"\Apps\2.0\"))
         {
@@ -129,7 +147,7 @@ public sealed class CloudBrainClient : ICloudBrainClient
         try
         {
             var jwt = new JwtSecurityTokenHandler().ReadJwtToken(stored);
-            
+
             // Non consideriamo valido un token salvato se è solo un Guest (vogliamo forzare l'utente a scegliere di nuovo)
             var authMode = jwt.Claims.FirstOrDefault(c => c.Type == "auth_mode")?.Value;
             if (authMode == "guest") return false;
@@ -152,7 +170,7 @@ public sealed class CloudBrainClient : ICloudBrainClient
                     _jwtToken = stored;
                     SetAuthHeader();
                     _logger.LogInformation("Token ripristinato dal cache locale. Auth: {Mode}", AuthMode);
-                    
+
                     // Notifica il server per aggiornare le statistiche (fire-and-forget)
                     _ = _http.PostAsync("api/auth/ping", null);
 
@@ -239,11 +257,11 @@ public sealed class CloudBrainClient : ICloudBrainClient
     {
         try
         {
-            var response = await _http.PostAsJsonAsync("api/auth/oauth/callback", new OAuthCallbackRequest 
-            { 
-                Provider = provider, 
-                Code = code, 
-                State = state 
+            var response = await _http.PostAsJsonAsync("api/auth/oauth/callback", new OAuthCallbackRequest
+            {
+                Provider = provider,
+                Code = code,
+                State = state
             }, _json);
 
             if (response.IsSuccessStatusCode)
@@ -251,7 +269,7 @@ public sealed class CloudBrainClient : ICloudBrainClient
                 var result = await response.Content.ReadFromJsonAsync<AuthResponse>(_json);
                 return (result?.Token, null);
             }
-            
+
             var errStr = await response.Content.ReadAsStringAsync();
             return (null, $"HTTP {response.StatusCode}: {errStr}");
         }
@@ -366,7 +384,7 @@ public sealed class CloudBrainClient : ICloudBrainClient
 
             var resBytes = await response.Content.ReadAsByteArrayAsync();
             var encrypted = System.Text.Json.JsonSerializer.Deserialize<EncryptedCommandResponse>(resBytes, _json);
-            
+
             CloudServiceLocator.Audit.LogResponse("/api/orchestrate", resBytes.Length, true);
 
             if (encrypted is null) return null;
@@ -408,9 +426,9 @@ public sealed class CloudBrainClient : ICloudBrainClient
                 "api/v1/chat/sessions",
                 new CreateSessionRequest
                 {
-                    AgentType     = agentType,
-                    GeminiChatId  = geminiChatId,
-                    Description   = description,
+                    AgentType = agentType,
+                    GeminiChatId = geminiChatId,
+                    Description = description,
                     WorkspacePath = workspacePath
                 },
                 _json);
@@ -431,10 +449,10 @@ public sealed class CloudBrainClient : ICloudBrainClient
         {
             var req = new UpdateSessionRequest
             {
-                Description   = description,
+                Description = description,
                 WorkspacePath = workspacePath,
-                GeminiChatId  = geminiChatId,
-                AgentType     = agentType
+                GeminiChatId = geminiChatId,
+                AgentType = agentType
             };
             await _http.PatchAsJsonAsync($"api/v1/chat/sessions/{sessionId}", req, _json);
         }
@@ -526,7 +544,7 @@ public sealed class CloudBrainClient : ICloudBrainClient
         }
     }
 
-    public async Task<(bool Success, string CompositeKey)> SyncCommunityAgentAsync(SyncAgentRequest request)
+    public async Task<(bool Success, string CompositeKey, string ErrorMessage)> SyncCommunityAgentAsync(SyncAgentRequest request)
     {
         try
         {
@@ -534,17 +552,33 @@ public sealed class CloudBrainClient : ICloudBrainClient
             if (res.IsSuccessStatusCode)
             {
                 var content = await res.Content.ReadFromJsonAsync<System.Text.Json.Nodes.JsonObject>();
-                if (content != null && content.TryGetPropertyValue("compositeKey", out var keyNode) && keyNode != null)
+                if (content != null)
                 {
-                    return (true, keyNode.ToString());
+                    bool isSuccess = true;
+                    if (content.TryGetPropertyValue("success", out var successNode) && successNode != null)
+                    {
+                        isSuccess = successNode.GetValue<bool>();
+                    }
+
+                    if (isSuccess)
+                    {
+                        string cKey = "";
+                        if (content.TryGetPropertyValue("compositeKey", out var keyNode) && keyNode != null)
+                        {
+                            cKey = keyNode.ToString();
+                        }
+                        return (true, cKey, "");
+                    }
+                    return (false, "", "JSON response indicated success: false");
                 }
+                return (false, "", "Empty JSON response from server");
             }
-            return (false, "");
+            return (false, "", $"HTTP {(int)res.StatusCode} {res.ReasonPhrase}");
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "SyncCommunityAgentAsync fallito.");
-            return (false, "");
+            return (false, "", ex.Message);
         }
     }
 
@@ -559,6 +593,102 @@ public sealed class CloudBrainClient : ICloudBrainClient
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "SubmitCommunityAgentsAsync fallito.");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteCommunityAgentAsync(string agentKey)
+    {
+        try
+        {
+            var res = await _http.DeleteAsync($"api/v1/agents/{Uri.EscapeDataString(agentKey)}");
+            return res.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "DeleteCommunityAgentAsync fallito.");
+            return false;
+        }
+    }
+
+    // ── Issues & Ticketing ───────────────────────────────────────────────────
+    public async Task<SubmitIssueResponse> SubmitIssueAsync(SubmitIssueRequest request)
+    {
+        try
+        {
+            SetAuthHeader();
+            var res = await _http.PostAsJsonAsync("api/v1/issues/submit", request, _json);
+            if (res.IsSuccessStatusCode)
+            {
+                var responseObj = await res.Content.ReadFromJsonAsync<SubmitIssueResponse>(_json);
+                return responseObj ?? new SubmitIssueResponse { Success = false, ErrorMessage = "Risposta vuota dal server." };
+            }
+
+            if (res.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            {
+                try
+                {
+                    var errorObj = await res.Content.ReadFromJsonAsync<SubmitIssueResponse>(_json);
+                    if (errorObj != null) return errorObj;
+                }
+                catch { /* ignore */ }
+
+                return new SubmitIssueResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Limite di segnalazioni raggiunto per oggi. Riprova più tardi."
+                };
+            }
+
+            return new SubmitIssueResponse
+            {
+                Success = false,
+                ErrorMessage = $"Errore del server ({(int)res.StatusCode} {res.ReasonPhrase})."
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "SubmitIssueAsync fallito.");
+            return new SubmitIssueResponse
+            {
+                Success = false,
+                ErrorMessage = $"Errore di rete o server non raggiungibile: {ex.Message}"
+            };
+        }
+    }
+
+    public async Task<List<UserIssueDto>> GetMyIssuesAsync(string hwid)
+    {
+        try
+        {
+            SetAuthHeader();
+            var res = await _http.GetAsync($"api/v1/issues/my?hwid={Uri.EscapeDataString(hwid)}");
+            if (res.IsSuccessStatusCode)
+            {
+                var list = await res.Content.ReadFromJsonAsync<List<UserIssueDto>>(_json);
+                return list ?? new List<UserIssueDto>();
+            }
+            return new List<UserIssueDto>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetMyIssuesAsync fallito.");
+            return new List<UserIssueDto>();
+        }
+    }
+
+    public async Task<bool> RespondToIssueAsync(Guid issueId, string responseText)
+    {
+        try
+        {
+            SetAuthHeader();
+            var req = new RespondToIssueRequest(responseText);
+            var res = await _http.PostAsJsonAsync($"api/v1/issues/{issueId}/respond", req, _json);
+            return res.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "RespondToIssueAsync fallito per issue {Id}.", issueId);
             return false;
         }
     }

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
+    <PackageId>MdXaml.FrontMatter</PackageId>
+    <Version>$(PackageVersion)</Version>
+    <Authors>whistyun</Authors>
+    <Company />
+    <Description>FrontMatter support for MdXaml</Description>
+    <Copyright>whistyun 2026</Copyright>
+    <PackageProjectUrl>https://github.com/whistyun/MdXaml</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Markdown WPF Xaml FlowDocument FrontMatter YAML</PackageTags>
+    <Configurations>Debug;Release</Configurations>
+
+    <UseWPF>true</UseWPF>
+    <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="15.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MdXaml\MdXaml.csproj" />
+    <ProjectReference Include="..\MdXaml.Plugins\MdXaml.Plugins.csproj" />
+  </ItemGroup>
+
+</Project>
+

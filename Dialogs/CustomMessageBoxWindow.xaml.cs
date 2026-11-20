@@ -50,7 +50,7 @@ namespace AIBridge.Dialogs
                 Cursor = System.Windows.Input.Cursors.Hand,
                 IsDefault = isDefault
             };
-            
+
             // Stile per arrotondare e togliere bordo blu strano WPF
             var template = new ControlTemplate(typeof(Button));
             var border = new FrameworkElementFactory(typeof(Border));
@@ -80,7 +80,7 @@ namespace AIBridge.Dialogs
             {
                 string safeCaption = string.IsNullOrEmpty(caption) ? Unclassified.TxLib.Tx.T("Message") : caption;
                 var window = new CustomMessageBoxWindow(messageBoxText, safeCaption, button, icon);
-                
+
                 if (Application.Current.MainWindow != null && Application.Current.MainWindow.IsVisible)
                 {
                     window.Owner = Application.Current.MainWindow;
@@ -89,7 +89,7 @@ namespace AIBridge.Dialogs
                 {
                     window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 }
-                
+
                 window.ShowDialog();
                 return window.Result;
             });

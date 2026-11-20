@@ -1,6 +1,5 @@
-using System.Net.Http;
-using Microsoft.Extensions.Logging.Abstractions;
 using AIBridge.Services.Extensions;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AIBridge.Services;
 
@@ -17,23 +16,37 @@ public static class CloudServiceLocator
     private static ISessionAdapter? _sessionAdapter;
     private static AIBridge.Shared.Interfaces.IPromptOrchestrator? _orchestrator;
 
-    public static ICloudBrainClient? Client       => _client;
+    public static ICloudBrainClient? Client => _client;
     public static ICloudModeDetector? ModeDetector => _modeDetector;
     public static INetworkAuditService Audit => _audit;
     public static ISessionAdapter Session => _sessionAdapter ??= InitSessionAdapter();
-    
+
+    public static string CustomAgentsDir
+    {
+        get
+        {
+            string email = Client?.DisplayName ?? "anonymous";
+            string safeEmail = string.Concat(email.Split(System.IO.Path.GetInvalidFileNameChars()));
+            if (string.IsNullOrWhiteSpace(safeEmail)) safeEmail = "anonymous";
+
+            return System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "DWN.Bridge", "CustomAgents", safeEmail);
+        }
+    }
+
     // Ritorna l'Orchestratore Cloud se connesso, altrimenti fa fallback a quello Locale
-    public static AIBridge.Shared.Interfaces.IPromptOrchestrator Orchestrator 
+    public static AIBridge.Shared.Interfaces.IPromptOrchestrator Orchestrator
     {
         get
         {
             if (_orchestrator != null) return _orchestrator;
-            
+
             try
             {
                 string extensionsPath = System.IO.Path.Combine(AppContext.BaseDirectory, "extensions");
                 string dllPath = System.IO.Path.Combine(extensionsPath, "AIBridge.Core.dll");
-                
+
                 if (System.IO.File.Exists(dllPath))
                 {
                     var assembly = System.Reflection.Assembly.LoadFrom(dllPath);
@@ -45,7 +58,7 @@ public static class CloudServiceLocator
                 }
             }
             catch { }
-            
+
             throw new InvalidOperationException("Servizio Cloud non inizializzato e componente Standalone (AIBridge.Core) mancante nella cartella extensions.");
         }
     }
@@ -61,7 +74,7 @@ public static class CloudServiceLocator
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri(baseUrl),
-                Timeout     = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(30)
             };
 
             // In sviluppo: accetta il certificato self-signed
@@ -73,7 +86,7 @@ public static class CloudServiceLocator
             var secureClient = new HttpClient(handler)
             {
                 BaseAddress = new Uri(baseUrl),
-                Timeout     = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(30)
             };
 
             _client = new CloudBrainClient(
@@ -90,7 +103,7 @@ public static class CloudServiceLocator
         }
         catch
         {
-            _client      = null;
+            _client = null;
             _modeDetector = null;
             _orchestrator = null;
             return false;
@@ -100,7 +113,7 @@ public static class CloudServiceLocator
     /// <summary>Reimposta allo stato non-connesso (utile per i test).</summary>
     public static void Reset()
     {
-        _client      = null;
+        _client = null;
         _modeDetector = null;
         _sessionAdapter = null;
     }

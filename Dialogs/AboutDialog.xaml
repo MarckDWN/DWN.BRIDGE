@@ -34,12 +34,17 @@
             <!-- App Name -->
             <TextBlock Text="DWN.Bridge"
                        FontFamily="Arial" FontWeight="Bold" FontSize="36"
-                       Foreground="White" HorizontalAlignment="Center" Margin="0,168,0,25"/>
+                       Foreground="White" HorizontalAlignment="Center" Margin="0,158,0,25"/>
+
+            <!-- Version -->
+            <TextBlock x:Name="VersionTextBlock" Text="v1.0.0.0"
+                       FontFamily="Segoe UI" FontSize="13" Foreground="#4A90E2"
+                       HorizontalAlignment="Center" Margin="0,200,0,0"/>
 
             <!-- Credits -->
             <TextBlock Text="Built by MarckDWN - A.D. MMXXVI" 
                        FontFamily="Segoe UI" FontSize="14" Foreground="#A0A0A0" 
-                       HorizontalAlignment="Center" Margin="0,209,0,45" Grid.RowSpan="3"/>
+                       HorizontalAlignment="Center" Margin="0,225,0,25" Grid.RowSpan="3"/>
 
             <!-- Links subtitle -->
             <TextBlock Grid.Row="2" Text="{tx:T 'Community &amp; Source'}"

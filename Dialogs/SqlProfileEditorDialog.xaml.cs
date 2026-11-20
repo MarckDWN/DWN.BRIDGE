@@ -1,29 +1,26 @@
-using System;
-using System.Collections.Generic;
+using AIBridge.Models;
+using AIBridge.Services;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using Unclassified.TxLib;
-using AIBridge.Models;
-using AIBridge.Services;
 
 namespace AIBridge.Dialogs
 {
     public partial class SqlProfileEditorDialog : Window
     {
         private string _workspaceRoot;
-        private List<SqlProfile> _profiles;
+        private System.Collections.ObjectModel.ObservableCollection<SqlProfile> _profiles;
         private SqlProfile? _currentProfile;
 
         public SqlProfileEditorDialog(string workspaceRoot, IEnumerable<SqlProfile> existingProfiles)
         {
             InitializeComponent();
             _workspaceRoot = workspaceRoot;
-            
+
             // Lavoriamo su copie per non sporcare la memoria finché non salviamo su disco
-            _profiles = existingProfiles.Select(p => new SqlProfile
+            _profiles = new System.Collections.ObjectModel.ObservableCollection<SqlProfile>(existingProfiles.Select(p => new SqlProfile
             {
                 Name = p.Name,
                 FilePath = p.FilePath,
@@ -31,28 +28,33 @@ namespace AIBridge.Dialogs
                 ConnectionString = p.ConnectionString,
                 SchemaFile = p.SchemaFile,
                 SkillFile = p.SkillFile
-            }).ToList();
+            }));
 
             ProfilesListBox.ItemsSource = _profiles;
             if (_profiles.Count > 0)
             {
                 ProfilesListBox.SelectedIndex = 0;
             }
+            else
+            {
+                // Crea automaticamente un nuovo profilo se la lista è vuota
+                NewProfile_Click(this, new RoutedEventArgs());
+            }
         }
 
         private void ProfilesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _currentProfile = ProfilesListBox.SelectedItem as SqlProfile;
-            
+
             if (_currentProfile != null)
             {
                 EditorPanel.IsEnabled = true;
                 NameTextBox.Text = _currentProfile.Name;
-                
+
                 // Select provider
                 ProviderComboBox.SelectedItem = ProviderComboBox.Items.Cast<ComboBoxItem>()
                     .FirstOrDefault(i => i.Content.ToString()?.ToLower() == _currentProfile.Provider?.ToLower());
-                
+
                 if (ProviderComboBox.SelectedItem == null && !string.IsNullOrEmpty(_currentProfile.Provider))
                 {
                     // Fallback se il provider non è in lista
@@ -81,7 +83,7 @@ namespace AIBridge.Dialogs
             if (ProviderComboBox.SelectedItem is ComboBoxItem item && item.Content != null)
             {
                 string provider = item.Content.ToString()!.ToLower();
-                
+
                 // Ignora l'elemento placeholder
                 if (provider == Tx.T("<Choose database type>").ToLower() || !item.IsEnabled)
                     return;
@@ -123,11 +125,10 @@ namespace AIBridge.Dialogs
                 ConnectionString = "",
                 FilePath = ""           // vuoto = non ancora salvato su disco
             };
-            
+
             _profiles.Add(newProfile);
-            ProfilesListBox.Items.Refresh();
             ProfilesListBox.SelectedItem = newProfile;
-            
+
             // Seleziona il placeholder nel ComboBox
             ProviderComboBox.SelectedIndex = 0;
         }
@@ -154,7 +155,6 @@ namespace AIBridge.Dialogs
                     }
 
                     _profiles.Remove(_currentProfile);
-                    ProfilesListBox.Items.Refresh();
                     if (_profiles.Count > 0)
                         ProfilesListBox.SelectedIndex = 0;
                     else
@@ -229,7 +229,7 @@ namespace AIBridge.Dialogs
                     SchemaFile = _currentProfile.SchemaFile,
                     SkillFile = _currentProfile.SkillFile
                 };
-                
+
                 string json = JsonSerializer.Serialize(dto, options);
                 File.WriteAllText(targetPath, json);
             }
@@ -239,9 +239,8 @@ namespace AIBridge.Dialogs
                 return;
             }
 
-            ProfilesListBox.Items.Refresh();
             AIBridge.Dialogs.CustomMessageBox.Show(Tx.T("Profile saved successfully!"), Tx.T("Success"), MessageBoxButton.OK, MessageBoxImage.Information);
-            
+
             // Chiudiamo dicendo che abbiamo fatto modifiche
             this.DialogResult = true;
             this.Close();

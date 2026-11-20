@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-16"?>
+<FlowDocument Style="{x:Null}" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Paragraph Tag="Heading1">Body heading</Paragraph>
+  <Paragraph>This is the body content after the front matter.</Paragraph>
+</FlowDocument>

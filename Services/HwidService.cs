@@ -1,8 +1,8 @@
+using Microsoft.Win32;
 using System.Management;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
-using Microsoft.Win32;
 
 namespace AIBridge.Services;
 
@@ -31,12 +31,12 @@ public sealed class HwidService : IHwidService
     {
         if (_cached is not null) return _cached;
 
-        var sid    = GetUserSid();
+        var sid = GetUserSid();
         var serial = GetMotherboardSerial() ?? GetMachineGuid() ?? "fallback";
 
-        var raw   = $"{sid}|{serial}";
+        var raw = $"{sid}|{serial}";
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
-        _cached   = Convert.ToHexString(bytes).ToLowerInvariant();
+        _cached = Convert.ToHexString(bytes).ToLowerInvariant();
         return _cached;
     }
 

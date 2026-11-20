@@ -27,43 +27,63 @@
             </StackPanel>
         </Border>
 
-        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="DenyButton" Content="{Tx:T ❌ Deny}"
-                    Width="110" Height="32" Margin="0,0,10,0"
-                    Background="#3D3D5E" Foreground="White" BorderThickness="0"
-                    Click="DenyButton_Click" IsCancel="True">
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="InfoButton" Content="❓" Grid.Column="0"
+                    Width="28" Height="28" Background="Transparent" Foreground="#A0A0C0" BorderThickness="0"
+                    Cursor="Hand" Click="InfoButton_Click" ToolTip="{Tx:T Click for options details}" VerticalAlignment="Center">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="14">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button x:Name="OnceButton" Content="{Tx:T ✔ Execute Once}"
-                    Width="140" Height="32" Margin="0,0,10,0"
-                    Background="#F39C12" Foreground="White" BorderThickness="0"
-                    Click="OnceButton_Click" IsDefault="True">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-            <Button x:Name="AlwaysButton" Content="{Tx:T 🚀 Execute Always}"
-                    Width="150" Height="32"
-                    Background="#27AE60" Foreground="White" BorderThickness="0"
-                    Click="AlwaysButton_Click">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-        </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="DenyButton" Content="{Tx:T ❌ Deny}"
+                        Width="110" Height="32" Margin="0,0,10,0"
+                        Background="#3D3D5E" Foreground="White" BorderThickness="0"
+                        Click="DenyButton_Click" IsCancel="True">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button x:Name="OnceButton" Content="{Tx:T ✔ Execute Once}"
+                        Width="140" Height="32" Margin="0,0,10,0"
+                        Background="#F39C12" Foreground="White" BorderThickness="0"
+                        Click="OnceButton_Click" IsDefault="True">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button x:Name="AlwaysButton" Content="{Tx:T 🚀 Execute Always}"
+                        Width="150" Height="32"
+                        Background="#27AE60" Foreground="White" BorderThickness="0"
+                        Click="AlwaysButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

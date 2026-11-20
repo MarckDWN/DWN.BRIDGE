@@ -67,12 +67,18 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
                     <TextBlock Grid.Column="0" Text="{Tx:T AI Agents}" FontSize="18" FontWeight="Bold" Foreground="#4A90E2" VerticalAlignment="Center"
                                Visibility="{Binding IsLeftPanelCollapsed, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                                
-                    <Button Grid.Column="2" Content="🤖 My Agents" Click="MyAgents_Click" 
+                    <Button Grid.Column="2" Content="🚀" Click="Wizard_Click" 
+                            Background="Transparent" Foreground="#10b981" BorderThickness="0" Cursor="Hand" Padding="5,0" Margin="0,0,5,0" ToolTip="{Tx:T Startup Wizard}"
+                            Visibility="{Binding IsLeftPanelCollapsed, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                               
+                    <Button Grid.Column="3" Content="🤖 My Agents" Click="MyAgents_Click" 
                             Background="Transparent" Foreground="#A0A0A0" BorderThickness="0" Cursor="Hand" Padding="5,0" ToolTip="{Tx:T Manage My Agents}"
                             Visibility="{Binding IsLeftPanelCollapsed, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                         <Button.Style>
@@ -86,7 +92,22 @@
                         </Button.Style>
                     </Button>
 
-                    <Button Grid.Column="3" Command="{Binding ToggleLeftPanelCommand}" Background="Transparent" Foreground="#4A90E2" BorderThickness="0" Cursor="Hand" Padding="5,0" ToolTip="Menu">
+                    <Button Grid.Column="4" Command="{Binding RefreshAgentsCommand}" 
+                            Background="Transparent" Foreground="#A0A0A0" BorderThickness="0" Cursor="Hand" Padding="5,0" Margin="0,0,5,0" ToolTip="{Tx:T Refresh Agents}"
+                            Visibility="{Binding IsLeftPanelCollapsed, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="#7B68EE"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="🔄" FontSize="14"/>
+                    </Button>
+
+                    <Button Grid.Column="5" Command="{Binding ToggleLeftPanelCommand}" Background="Transparent" Foreground="#4A90E2" BorderThickness="0" Cursor="Hand" Padding="5,0" ToolTip="Menu">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Style.Triggers>
@@ -115,7 +136,55 @@
                                     <TextBlock Grid.Column="0" Text="{Binding IconCode}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0" Visibility="{Binding DataContext.IsLeftPanelCollapsed, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                            <Border CornerRadius="3" Padding="4,1" Margin="6,0,0,0" VerticalAlignment="Center">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Private">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Setter Property="Background" Value="#3B82F6"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Pending">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Setter Property="Background" Value="#F59E0B"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="PendingApproval">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Setter Property="Background" Value="#F59E0B"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Rejected">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Setter Property="Background" Value="#EF4444"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock FontSize="8" FontWeight="Bold" Foreground="White" VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="Custom"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Private">
+                                                                    <Setter Property="Text" Value="{Tx:T Local}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Pending">
+                                                                    <Setter Property="Text" Value="{Tx:T Pending}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="PendingApproval">
+                                                                    <Setter Property="Text" Value="{Tx:T Pending}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Rejected">
+                                                                    <Setter Property="Text" Value="{Tx:T Rejected}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                        </StackPanel>
                                         <TextBlock Text="{Binding Description}" FontSize="10" Foreground="#A0A0A0" TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
                                 </Grid>
@@ -146,7 +215,7 @@
                             <TextBlock Text="{Tx:T Choose...}" Margin="5,0,0,0" Visibility="{Binding IsLeftPanelCollapsed, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding TestDbConnectionCommand}" Margin="2" Padding="5,2" Background="#8E44AD" Foreground="White" BorderThickness="0" Cursor="Hand" ToolTip="{Tx:T Test local DB connection}" VerticalAlignment="Center" Visibility="{Binding HasSqlProfiles, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Button Command="{Binding TestDbConnectionCommand}" Margin="2" Padding="5,2" Background="#8E44AD" Foreground="White" BorderThickness="0" Cursor="Hand" ToolTip="{Tx:T Test local DB connection}" VerticalAlignment="Center" Visibility="{Binding IsSqlAgentSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🔌" Width="18" TextAlignment="Center" VerticalAlignment="Center"/>
                             <TextBlock Text="{Tx:T Test DB}" Margin="5,0,0,0" Visibility="{Binding IsLeftPanelCollapsed, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
@@ -261,14 +330,56 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding SelectedAgent.Name, StringFormat='Active: {0}'}" FontSize="16" FontWeight="SemiBold" Foreground="#27AE60"/>
+                <TextBlock Grid.Column="0" Text="{Binding SelectedAgent.Name, StringFormat='Active: {0}'}" FontSize="16" FontWeight="SemiBold" Foreground="#27AE60" VerticalAlignment="Center"/>
                 
                 <!-- Local Mode Banner -->
-                <Border Grid.Column="1" Background="#B8860B" CornerRadius="4" Padding="8,4" 
-                        Visibility="{Binding IsLocalMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Border Grid.Column="1" Background="#B8860B" CornerRadius="4" Padding="8,4" Margin="0,0,10,0"
+                        Visibility="{Binding IsLocalMode, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center">
                     <TextBlock Text="{Binding LocalModeBannerText}" FontWeight="Bold" Foreground="White" FontSize="12"/>
                 </Border>
+
+                <!-- Pulsante Segnalazioni Gradient Giallo-Arancione -->
+                <Button Grid.Column="2" x:Name="ReportIssueButton" Click="ReportIssueButton_Click" 
+                        Foreground="White" BorderThickness="0" Cursor="Hand"
+                        Height="28" Padding="12,0" VerticalAlignment="Center">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border CornerRadius="14" Padding="10,2">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#F39C12" Offset="0.0"/>
+                                        <GradientStop Color="#D35400" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0.85" Duration="0:0:0.1"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1.0" Duration="0:0:0.1"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🙋" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Tx:T 'Help &amp; Feedback'}" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </Grid>
 
             <!-- Chat History -->
@@ -317,7 +428,10 @@
                                                 <TextBlock Text="🔧 " FontSize="13"/>
                                                 <TextBlock Text="{Binding ToolName}" FontSize="13" FontWeight="Bold"
                                                        Foreground="{Binding ToolBadgeColor}" Margin="4,0,0,0"/>
-                                                <TextBlock Text="{Tx:T  — Tool Executed}" FontSize="11" Foreground="#607080" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Tx:T  — Running...}" FontSize="11" Foreground="#E67E22" Margin="6,0,0,0" VerticalAlignment="Center"
+                                                           Visibility="{Binding IsToolRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                <TextBlock Text="{Tx:T  — Tool Executed}" FontSize="11" Foreground="#607080" Margin="6,0,0,0" VerticalAlignment="Center"
+                                                           Visibility="{Binding IsToolRunning, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                                             </StackPanel>
                                             <ToggleButton Grid.Column="1" IsChecked="{Binding IsToolExpanded}"
                                                       Background="Transparent" BorderThickness="0" Cursor="Hand"
@@ -335,6 +449,10 @@
                                             </ToggleButton>
                                         </Grid>
                                     </Border>
+
+                                    <!-- Progress bar when running -->
+                                    <ProgressBar Height="2" IsIndeterminate="True" Background="Transparent" Foreground="{Binding ToolBadgeColor}" BorderThickness="0"
+                                                 Visibility="{Binding IsToolRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                                     <!-- Input (sempre visibile, compatto) -->
                                     <Border Padding="10,6,10,6" Background="#111C28">
@@ -385,7 +503,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{Binding Sender}" FontSize="10" Foreground="#A0A0A0" Margin="0,0,0,5"/>
                                     <md:MarkdownScrollViewer Markdown="{Binding Text, Converter={StaticResource RemoveTripleBackticksConverter}, Mode=OneWay, TargetNullValue=' ', FallbackValue=' '}" 
-                                         Background="Transparent" Foreground="White" 
+                                         Background="Transparent" Foreground="White" MarkdownStyleName="Plain" TextElement.Foreground="White"
                                          PreviewMouseLeftButtonDown="ChatTextBox_PreviewMouseLeftButtonDown"
                                          Loaded="MarkdownScrollViewer_Loaded">
 
@@ -861,13 +979,17 @@
                                     </ContextMenu>
                                 </Border.ContextMenu>
                                 <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <!-- Agent + Active indicator -->
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                                         <TextBlock Text="{Binding StorageIcon}" FontSize="10" 
                                                    Margin="0,0,4,0" FontFamily="Segoe UI Emoji"
                                                    Foreground="{Binding StorageIconColor}"/>
@@ -877,14 +999,41 @@
                                                    Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     </StackPanel>
                                     <!-- Description: NoWrap è obbligatorio per TextTrimming=CharacterEllipsis -->
-                                    <TextBlock Grid.Row="1" Text="{Binding DisplayDescription}" 
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding DisplayDescription}" 
                                                FontSize="11" Foreground="#DCDCDC"
                                                TextWrapping="NoWrap"
                                                TextTrimming="CharacterEllipsis"
                                                Margin="0,2,0,2"/>
                                     <!-- Date/time -->
-                                    <TextBlock Grid.Row="2" Text="{Binding DisplayHeader}" 
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding DisplayHeader}" 
                                                FontSize="9" Foreground="#6A6A8A"/>
+                                    <!-- Quick Load Button (Single-Click Load) -->
+                                    <Button Grid.Column="1" Grid.RowSpan="3"
+                                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                                            Margin="8,0,2,0"
+                                            Background="Transparent" BorderThickness="0"
+                                            Cursor="Hand"
+                                            Click="QuickLoadChat_Click"
+                                            ToolTip="{Tx:T 'Load this conversation'}">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Setter Property="Foreground" Value="#B0B0C0"/>
+                                                <Setter Property="Opacity" Value="0.7"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Opacity" Value="1.0"/>
+                                                        <Setter Property="Foreground" Value="#4A90E2"/>
+                                                    </Trigger>
+                                                    <!-- Nascondi se è già la conversazione attiva -->
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="13" VerticalAlignment="Center"/>
+                                    </Button>
                                 </Grid>
                             </Border>
                         </DataTemplate>

@@ -1,0 +1,44 @@
+<Window x:Class="AIBridge.Dialogs.ViewScriptWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Tx="http://unclassified.software/source/txtranslation"
+        Title="{Tx:T Agent Script}" Height="600" Width="800"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E2E"
+        Foreground="White"
+        FontFamily="Segoe UI">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="AgentNameTextBlock" FontSize="18" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="{Tx:T 📋 Copy}" Background="#3D3D5E" Foreground="White" BorderThickness="0" Padding="8,4" Cursor="Hand" Click="CopyButton_Click"/>
+        </Grid>
+
+        <TextBox x:Name="ScriptTextBox" Grid.Row="1" Background="#2D2D4E" Foreground="#E0E0E0" 
+                 BorderBrush="#7B68EE" BorderThickness="1" Padding="8"
+                 TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" 
+                 IsReadOnly="True" FontFamily="Consolas" FontSize="13" />
+
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="EditButton" Grid.Column="0" Content="{Tx:T ✏️ Edit with Default Editor}" Height="35" HorizontalAlignment="Left"
+                    Background="#7B68EE" Foreground="White" BorderThickness="0" Click="EditButton_Click" Padding="16,0" Visibility="Collapsed" FontWeight="Bold"/>
+
+            <Button Grid.Column="1" Content="{Tx:T Close}" Height="35" Width="100" 
+                    Background="#3D3D5E" Foreground="White" BorderThickness="0" Click="CloseButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>

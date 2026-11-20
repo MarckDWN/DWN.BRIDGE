@@ -1,4 +1,5 @@
 using System.Windows;
+using Unclassified.TxLib;
 
 namespace AIBridge.Dialogs;
 
@@ -46,5 +47,18 @@ public partial class CommandApprovalDialog : Window
     {
         Result = CommandApprovalResult.Deny;
         DialogResult = false;
+    }
+
+    private void InfoButton_Click(object sender, RoutedEventArgs e)
+    {
+        string title = Tx.T("Command Approval Options");
+        string intro = Tx.T("Here is an explanation of the available choices:");
+        string denyDesc = Tx.T("Deny: The current command execution is rejected. The agent loop is interrupted.");
+        string onceDesc = Tx.T("Execute Once: The current command runs once. The next RUN_COMMAND will request authorization again.");
+        string alwaysDesc = Tx.T("Execute Always: Allows this exact command in this specific folder without asking again, but ONLY until the application is closed. These permissions do not persist across app restarts.");
+
+        string message = $"{intro}\n\n• {denyDesc}\n\n• {onceDesc}\n\n• {alwaysDesc}";
+
+        CustomMessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }

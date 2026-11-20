@@ -1,0 +1,85 @@
+name: Build and Publish PreRelease
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  prerelease:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run versioning script
+      id: versioning
+      shell: pwsh
+      run: |
+        $version = ./.github/my_scripts/versioning.ps1 -PropsPath "./Directory.Build.props" -RepresentativePackageId "MdXaml";
+        echo "package_version=$version" >> $env:GITHUB_OUTPUT
+
+    - name: Echo package version
+      run: echo ${{ steps.versioning.outputs.package_version }}
+
+    - name: Commit updated props
+      if: steps.versioning.outputs.package_version != ''
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add Directory.Build.props
+        git commit -m "Update PackageVersion by CI"
+        git push origin master
+
+    - name: Cache Visual Studio package cache
+      uses: actions/cache@v4
+      with:
+        path: C:\ProgramData\Microsoft\VisualStudio\Packages
+        key: vs2022-packages-net461-${{ runner.os }}
+
+    - name: Install component on windows 2022
+      shell: pwsh
+      run: |
+        Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+        $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        $componentsToAdd = @(
+          "Microsoft.Net.Component.4.6.1.SDK"
+        )
+        [string]$workloadArgs = $componentsToAdd | ForEach-Object {" --add " +  $_}
+
+        $Arguments = ('modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart')
+        $process = Start-Process -FilePath vs_installer.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+
+        if ($process.ExitCode -eq 0)
+        {
+            Write-Host "components have been successfully added"
+        }
+        else
+        {
+            Write-Host "components were not installed"
+            exit 1
+        }
+
+    - name: Restore
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore -p:PackageVersion=${{ steps.versioning.outputs.package_version }}
+
+    - name: Pack (PreRelease)
+      run: dotnet pack  -c Release --no-build -o artifacts/packs -p:PackageVersion=${{ steps.versioning.outputs.package_version }}
+
+    - name: Push to NuGet
+      run: dotnet nuget push ".\artifacts\packs\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
