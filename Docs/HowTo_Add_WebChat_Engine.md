@@ -1,32 +1,32 @@
-# Come aggiungere o mantenere un Engine WebChat in DWN.Bridge
+# How to Add or Maintain a WebChat Engine in DWN.Bridge
 
-Questa guida descrive l'architettura modulare introdotta in Fase 1 (`Services/WebChat/`) per:
-1. Fixare rapidamente selettori GUI rotti **senza ricompilare** tramite override JSON locale.
-2. Diagnosticare i selettori con `SelfTestAsync`.
-3. Aggiungere un nuovo provider WebChat (es. Claude, ChatGPT, DeepSeek) in isolamento.
+This guide describes the modular architecture introduced in Phase 1 (`Services/WebChat/`) to:
+1. Quickly fix broken GUI selectors **without recompiling** via local JSON overrides.
+2. Diagnose selectors using `SelfTestAsync`.
+3. Add a new WebChat provider (e.g., Claude, ChatGPT, DeepSeek) in complete isolation.
 
 ---
 
-## 1. Fix rapido di un selettore rotto (Override Locale JSON)
+## 1. Quick Fix for a Broken Selector (Local JSON Override)
 
-La risoluzione dei selettori segue tre layer in ordine crescente di priorità:
+Selector resolution follows three tiers in ascending order of priority:
 
 ```
-1. Default nel codice (Engine)  <  2. OTA Server (ISelectorsService)  <  3. Override locale JSON
+1. In-Code Defaults (Engine)  <  2. OTA Server Config (ISelectorsService)  <  3. Local JSON Override
 ```
 
-Il file di override locale si trova in:
+The local override file is located at:
 ```
 %LocalAppData%\AIBridge\selectors\{engineId}.json
 ```
-Per Gemini, il percorso è:
+For Gemini, the path is:
 ```
 %LocalAppData%\AIBridge\selectors\gemini.json
 ```
 
-### Regole dell'override
-- **Solo le chiavi presenti** nel JSON sovrascrivono i layer sottostanti; tutte le altre mantengono il valore OTA o di default.
-- I nomi delle chiavi sono **case-insensitive** e corrispondono alle proprietà di `EngineSelectors`:
+### Override Rules
+- **Only specified keys** in the JSON will override the underlying layers; all omitted keys retain their OTA or hardcoded default values.
+- Key names are **case-insensitive** and map to the properties of `EngineSelectors`:
   - `TextArea`
   - `SendButton`
   - `StopButton`
@@ -41,59 +41,59 @@ Per Gemini, il percorso è:
   - `CaptchaFrame`
   - `CodeBlock`
   - `HidePopupsCss`
-  - `ChatLinkSelectorTemplates` (array JSON di stringhe)
-- **Hot-reload automatico:** alla successiva lettura di `engine.Selectors` (ad esempio al prossimo messaggio, cambio chat o `SelfTestAsync`), il file modificato viene ricaricato automaticamente senza riavviare l'app.
-- **Sicurezza:** se il file JSON è malformato o contiene errori di sintassi, viene ignorato con un log `[Selectors] Override locale ignorato ...` e l'app continua a usare i selettori OTA/default.
+  - `ChatLinkSelectorTemplates` (JSON array of strings)
+- **Automatic Hot-Reload:** Upon the next access of `engine.Selectors` (e.g. on the next prompt dispatch, conversation switch, or `SelfTestAsync`), the updated file is reloaded automatically without restarting the application.
+- **Safety:** If the JSON file is malformed or has syntax errors, it is safely ignored with a log entry `[Selectors] Local override ignored ...`, and the engine continues using OTA/default selectors.
 
-### Esempio pratico (`gemini.json`)
+### Practical Example (`gemini.json`)
 ```json
 {
-  "StopButton": "button[aria-label*='Interrompi'], button[data-testid='stop-btn']",
+  "StopButton": "button[aria-label*='Stop'], button[data-testid='stop-btn']",
   "TextArea": "div[role='textbox'][contenteditable='true']"
 }
 ```
 
 ---
 
-## 2. Come interpretare `IChatWebEngine.SelfTestAsync(IPage)`
+## 2. Interpreting `IChatWebEngine.SelfTestAsync(IPage)`
 
-`SelfTestAsync(page)` esegue un check rapido sul DOM corrente e restituisce un `EngineSelfTestReport`:
+`SelfTestAsync(page)` runs a fast diagnostic check on the live DOM and returns an `EngineSelfTestReport`:
 
-- `AllCriticalFound`: `true` se **tutti** i selettori critici (`TextArea`, `SendButton`) sono presenti nel DOM.
-- `Checks`: elenco di `SelectorCheckResult(Name, Selector, Found, MatchCount, Note)`:
-  - `Note == null` → selettore **critico** (`TextArea`, `SendButton`). Se `Found == false`, l'invio dei prompt è compromesso.
-  - `Note == "optional"` → selettore **contestuale** (`StopButton` è visibile solo durante la generazione, `MessageElements` può essere 0 su una chat nuova vuota, `UploadButton` dipende dal layout).
+- `AllCriticalFound`: `true` if **all** critical selectors (`TextArea`, `SendButton`) are present in the DOM.
+- `Checks`: list of `SelectorCheckResult(Name, Selector, Found, MatchCount, Note)`:
+  - `Note == null` → **Critical** selector (`TextArea`, `SendButton`). If `Found == false`, prompt dispatching is blocked.
+  - `Note == "optional"` → **Contextual** selector (`StopButton` is only visible during active token generation, `MessageElements` may be 0 on a brand new empty chat, `UploadButton` depends on viewport layout).
 
-Esempio di output nei log di debug:
+Example debug log output:
 ```
 [SelfTest:gemini] CriticalOK=True | TextArea=OK(1), SendButton=OK(1), StopButton=MISSING, MessageElements=OK(4), UploadButton=OK(1)
 ```
 
 ---
 
-## 3. Checklist per creare un nuovo Engine
+## 3. Checklist for Creating a New Engine
 
-1. **Cartella dedicata:** crea `Services/WebChat/Engines/<Provider>/<Provider>WebEngine.cs` (tutti i literal CSS/URL del sito devono vivere **solo** qui dentro, verificato dal test E3).
-2. **Implementa `IChatWebEngine`:**
-   - `Descriptor`: scegli un `Id` stabile (es. `"claude"`), `DisplayName`, `ProfileFolderName` (es. `"ClaudeProfile"` — non cambiarlo mai dopo il rilascio per preservare i cookie degli utenti) e `BaseUrl`.
-   - `Selectors`: risolvi sempre tramite `SelectorLayerResolver.Resolve(Descriptor.Id, _defaultSelectors, _selectorsService?.Current)`.
+1. **Dedicated Folder:** Create `Services/WebChat/Engines/<Provider>/<Provider>WebEngine.cs` (all CSS/URL literals for that site must live **exclusively** inside this folder, verified by test E3).
+2. **Implement `IChatWebEngine`:**
+   - `Descriptor`: Choose a stable `Id` (e.g., `"claude"`), `DisplayName`, `ProfileFolderName` (e.g., `"ClaudeProfile"` — never change it after release to preserve user session cookies), and `BaseUrl`.
+   - `Selectors`: Always resolve via `SelectorLayerResolver.Resolve(Descriptor.Id, _defaultSelectors, _selectorsService?.Current)`.
    - `BuildNewChatUrl`, `BuildChatUrl`, `IsOnEngineHost`, `TryExtractChatId`.
-   - `ClassifyAsync` e `ReadMessageAsync` (usa `FileBlockHtmlProtector.ProtectCustomTagsInFileBlocks(html)` prima di `ReverseMarkdown` per preservare tag XML/`.csproj` non racchiusi in `<pre><code>`, e normalizza eventuali URL `//...` in `https://...`).
+   - `ClassifyAsync` and `ReadMessageAsync` (use `FileBlockHtmlProtector.ProtectCustomTagsInFileBlocks(html)` before `ReverseMarkdown` to preserve XML/`.csproj` tags not enclosed in `<pre><code>`, and normalize relative URLs `//...` to `https://...`).
    - `BuildStopButtonSelector()`, `DetectBlockAsync(page)`, `IsSpaCrash(response)`.
    - `PreparePageAsync(page)`, `AttachFilesAsync(...)`, `NavigateToChatAsync(...)`, `NavigateToNewChatAsync(...)`, `GetChatTitleAsync(...)`.
    - `SelfTestAsync(page)`.
-3. **Registrazione in `EngineRegistry`:**
+3. **Registration in `EngineRegistry`:**
    In `Services/WebChat/EngineRegistry.cs`:
    ```csharp
    registry.Register("claude", (selectors, ui) => new ClaudeWebEngine(selectors, new ClaudeLoginFlow(ui)));
    ```
-4. **Fixture HTML + Suite di conformità:**
-   - Aggiungi `AIBridge.WebChat.Tests/Fixtures/<provider>_streaming.html` con i selettori minimi e gli helper JS (`window.testApi`).
-   - Crea `<Provider>WebEngineContractTests : ChatWebEngineContractTests<<Provider>WebEngine>` in `AIBridge.WebChat.Tests/`: tutti i test di contratto (`Descriptor`, URL round-trip, `ClassifyAndRead`, `StopButtonSelector`, `DetectBlock`, `SelfTestAsync`) verranno eseguiti automaticamente.
+4. **HTML Fixture + Compliance Suite:**
+   - Add `AIBridge.WebChat.Tests/Fixtures/<provider>_streaming.html` with minimal selectors and test JS helpers (`window.testApi`).
+   - Create `<Provider>WebEngineContractTests : ChatWebEngineContractTests<<Provider>WebEngine>` in `AIBridge.WebChat.Tests/`: all contract tests (`Descriptor`, URL round-trip, `ClassifyAndRead`, `StopButtonSelector`, `DetectBlock`, `SelfTestAsync`) will run automatically.
 
 ---
 
-## 4. Template minimo di Engine
+## 4. Minimal Engine Template
 
 ```csharp
 using AIBridge.Services.WebChat;
@@ -129,7 +129,6 @@ public sealed class MyProviderWebEngine : IChatWebEngine
         MessageElements = ".message-user, .message-assistant"
     };
 
-    // Implementa i restanti membri di IChatWebEngine...
+    // Implement remaining members of IChatWebEngine...
 }
 ```
-
