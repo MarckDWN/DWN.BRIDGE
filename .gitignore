@@ -1,7 +1,9 @@
 .vs/
 bin/
 obj/
-docs/
+docs/*
+!docs/HowTo_Add_WebChat_Engine.md
+!docs/dwnbridge_short.gif
 AIBridge.ToolCore/
 # WPF temporary build projects
 *_wpftmp.csproj
